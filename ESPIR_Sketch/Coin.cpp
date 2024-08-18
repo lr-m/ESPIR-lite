@@ -78,19 +78,41 @@ void COIN::draw(int currency, bool bitmap_enabled) {
   display->fillRect(0, 0, display->width(), display->height(), BLACK);
 
   if (bitmap_enabled) {
-    display->fillCircle(12, 12, 44, circle_colour);
-    drawBitmap(4, 4, bitmap, 40, 40, bm_colour);
+    if (display->width() == 128){
+      display->fillRoundRect(0, 0, 42, 42, 5, circle_colour);
+      drawBitmap(1, 1, bitmap, 40, 40, bm_colour);
+    } else {
+      display->fillCircle(12, 12, 44, circle_colour);
+      drawBitmap(4, 4, bitmap, 40, 40, bm_colour);
+    }
   }
 
   drawName(bitmap_enabled);
 
-  if (bitmap_enabled) {
-    display->setCursor(BM_PRICE_START_X, PRICE_START_Y);
+  if (display->width() == 128){
+    if (bitmap_enabled) {
+      // if 5 digits when rounded to int, will end in '.' and look weird, so offset slightly
+      if (current_price < 100000 && current_price >= 10000){
+        display->setCursor(BM_PRICE_START_X_128 + 5, PRICE_START_Y_128);
+      } else {
+        display->setCursor(BM_PRICE_START_X_128, PRICE_START_Y_128);
+      }
+    } else {
+      display->setCursor(NO_BM_PRICE_START_X_128, PRICE_START_Y_128);
+    }
   } else {
-    display->setCursor(NO_BM_PRICE_START_X, PRICE_START_Y);
+    if (bitmap_enabled) {
+      display->setCursor(BM_PRICE_START_X_160, PRICE_START_Y_160);
+    } else {
+      display->setCursor(NO_BM_PRICE_START_X_160, PRICE_START_Y_160);
+    }
   }
 
-  value_drawer->drawPrice(7, current_price, 7, 2, currency);
+  if (display->width() == 128){
+    value_drawer->drawPrice(6, current_price, 6, 2, currency);
+  } else {
+    value_drawer->drawPrice(7, current_price, 7, 2, currency);
+  }
 
   drawPercentageChange(bitmap_enabled);
   candles->display();
@@ -106,14 +128,26 @@ void COIN::drawName(bool bitmap_enabled) {
       break;
   }
 
-  if (bitmap_enabled) {
-    display->setCursor(
-      BM_PRICE_START_X + (((display->width() - BM_PRICE_START_X) / 8) * (8 - len)) / 2,
-      6);
+  if (display->width() == 128){
+    if (bitmap_enabled) {
+      display->setCursor(
+        BM_NAME_START_X_128 + (((display->width() - BM_NAME_START_X_128) / 8) * (8 - len)) / 2,
+        6);
+    } else {
+      display->setCursor(
+        NO_BM_NAME_START_X_128 + (((display->width() - 2 * NO_BM_NAME_START_X_128) / 8) * (8 - len)) / 2,
+        6);
+    }
   } else {
-    display->setCursor(
-      NO_BM_PRICE_START_X + (((display->width() - 2 * NO_BM_PRICE_START_X) / 8) * (8 - len)) / 2,
-      6);
+    if (bitmap_enabled) {
+      display->setCursor(
+        BM_NAME_START_X_160 + (((display->width() - BM_NAME_START_X_160) / 8) * (8 - len)) / 2,
+        6);
+    } else {
+      display->setCursor(
+        NO_BM_NAME_START_X_160 + (((display->width() - 2 * NO_BM_NAME_START_X_160) / 8) * (8 - len)) / 2,
+        6);
+    }
   }
 
   display->print(coin_code);
@@ -121,10 +155,19 @@ void COIN::drawName(bool bitmap_enabled) {
 
 // Draws the percentage change on the screen.
 void COIN::drawPercentageChange(bool bitmap_enabled) {
-  if (bitmap_enabled) {
-    display->setCursor(BM_CHANGE_START_X, CHANGE_START_Y);
+
+  if (display->width() == 128){
+    if (bitmap_enabled) {
+      display->setCursor(BM_CHANGE_START_X_128, CHANGE_START_Y_128);
+    } else {
+      display->setCursor(NO_BM_CHANGE_START_X_128, CHANGE_START_Y_128);
+    }
   } else {
-    display->setCursor(NO_BM_CHANGE_START_X, CHANGE_START_Y);
+    if (bitmap_enabled) {
+      display->setCursor(BM_CHANGE_START_X_160, CHANGE_START_Y_160);
+    } else {
+      display->setCursor(NO_BM_CHANGE_START_X_160, CHANGE_START_Y_160);
+    }
   }
 
   display->setTextSize(1);

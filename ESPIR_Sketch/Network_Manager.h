@@ -3,7 +3,7 @@
 #include <WiFiClientSecure.h>
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>
-#include "COIN.h"
+#include "Coin.h"
 #include "Keyboard.h"
 #include "EEPROM.h"
 

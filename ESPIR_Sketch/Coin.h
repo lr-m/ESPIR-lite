@@ -15,14 +15,29 @@
 
 #define COIN_COUNT 20
 
-// Positional constants
-#define BM_PRICE_START_X 60
-#define NO_BM_PRICE_START_X 32
-#define PRICE_START_Y 28
+// Positional constants for 128 width
+#define NO_BM_NAME_START_X_128 24
+#define NO_BM_PRICE_START_X_128 24
+#define NO_BM_CHANGE_START_X_128 22
 
-#define BM_CHANGE_START_X 60
-#define NO_BM_CHANGE_START_X 35
-#define CHANGE_START_Y 50
+#define BM_NAME_START_X_128 44
+#define BM_PRICE_START_X_128 44
+#define BM_CHANGE_START_X_128 20
+
+#define CHANGE_START_Y_128 48
+#define PRICE_START_Y_128 28
+
+// Positional constants for 160 width
+#define NO_BM_NAME_START_X_160 32
+#define NO_BM_PRICE_START_X_160 32
+#define NO_BM_CHANGE_START_X_160 35
+
+#define BM_NAME_START_X_160 60
+#define BM_PRICE_START_X_160 60
+#define BM_CHANGE_START_X_160 60
+
+#define CHANGE_START_Y_160 50
+#define PRICE_START_Y_160 28
 
 // For storing coins
 class COIN {

@@ -23,6 +23,33 @@
 #ifndef Portfolio_h
 #define Portfolio_h
 
+// for pie chart represenation
+#define TEXT_SIZE 1
+#define TEXT_X_OFFSET 7
+#define TEXT_Y_OFFSET 28
+#define TEXT_Y_SPACING 10
+#define PERCENTAGE_TEXT_X_OFFSET 40
+#define COLOR_RECT_X 2
+#define COLOR_RECT_WIDTH 2
+
+// for bar representation
+#define VALUE_TEXT_X_OFFSET_128 40
+#define PERFORMANCE_TEXT_X_OFFSET_128 90
+
+#define VALUE_TEXT_X_OFFSET_160 52
+#define PERFORMANCE_TEXT_X_OFFSET_160 123
+
+// for pie chart size/positioning on other display widths
+#define PIE_CHART_CENTER_X_OFFSET_128 35
+#define PIE_CHART_CENTER_Y_OFFSET_128 5
+#define PIE_CHART_RADIUS_OUTER_128 24
+#define PIE_CHART_RADIUS_INNER_128 12
+
+#define PIE_CHART_CENTER_X_OFFSET_160 41
+#define PIE_CHART_CENTER_Y_OFFSET_160 5
+#define PIE_CHART_RADIUS_OUTER_160 32
+#define PIE_CHART_RADIUS_INNER_160 16
+
 enum class DisplayMode {
   BAR,
   PIE,

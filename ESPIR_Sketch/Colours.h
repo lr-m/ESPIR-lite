@@ -22,5 +22,3 @@
 
 #define LIGHT_GREEN 0x7e0
 #define LIGHT_RED 0xf8c3
-
-// NEW COLOURS

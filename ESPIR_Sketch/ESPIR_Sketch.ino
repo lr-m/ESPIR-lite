@@ -10,13 +10,6 @@
 #include "Network_Manager.h"
 
 // Define PIN config
-// #define TFT_SCL D1
-// #define TFT_SDA D2
-// #define TFT_RES D3
-// #define RECV_PIN D4
-// #define TFT_DC D5
-// #define TFT_CS D6
-
 #define TFT_SCL D1
 #define TFT_SDA D2
 #define TFT_RES D3
@@ -24,7 +17,7 @@
 #define RECV_PIN D5
 #define TFT_CS D6
 
-#define UPDATE_PERIOD 20
+#define UPDATE_PERIOD 30
 
 extern unsigned char BTC_logo[];
 extern unsigned char ETH_logo[];
@@ -94,7 +87,7 @@ void setup(void) {
 
   IrReceiver.begin(RECV_PIN);
 
-  tft.initR(INITR_BLACKTAB);  // Init ST7735S chip
+  tft.initR(INITR_BLACKTAB);  // Init ST7735S chip (INITR_144GREENTAB = red 1.44, INITR_BLACKTAB = blue 1.88)
   tft.setRotation(1);
   tft.fillScreen(BLACK);
 

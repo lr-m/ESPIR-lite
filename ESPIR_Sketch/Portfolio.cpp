@@ -17,7 +17,11 @@ void Portfolio::drawValue(double *total_value, int currency) {
   tft->setTextColor(WHITE);
   tft->setCursor(3, 4);
 
-  value_drawer->drawPrice(12, *total_value, 2, 2, currency);
+  if (tft->width() == 128){
+    value_drawer->drawPrice(9, *total_value, 2, 2, currency);
+  } else {
+    value_drawer->drawPrice(12, *total_value, 2, 2, currency);
+  }
 }
 
 // Moves to the next display mode
@@ -110,18 +114,36 @@ void Portfolio::drawBarSummary(double *total_value, int currency) {
       coin_total =
         sorted_coins[i]->current_price * sorted_coins[i]->amount;
 
-      tft->setTextSize(1);
-      tft->setCursor(7, 28 + drawing_count * 10);
-      tft->fillRect(2, 27 + drawing_count * 10, 2, 10, sorted_coins[i]->portfolio_colour);
-      tft->print(
-        sorted_coins[i]->coin_code);
-      tft->setCursor(52, 28 + drawing_count * 10);
+      // Set text properties
+      tft->setTextSize(TEXT_SIZE);
+      tft->setCursor(TEXT_X_OFFSET, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+      
+      // Draw color indicator rectangle
+      tft->fillRect(COLOR_RECT_X, 
+                    TEXT_Y_OFFSET - 1 + drawing_count * TEXT_Y_SPACING, 
+                    COLOR_RECT_WIDTH, 
+                    TEXT_Y_SPACING, 
+                    sorted_coins[i]->portfolio_colour);
+        
+      // Print coin code and percentage
+      tft->print(sorted_coins[i]->coin_code);
       tft->setTextColor(WHITE);
 
-      value_drawer->drawPrice(10, coin_total, 2, 1, currency);
+      // draw value
+      if (tft->width() == 128){
+        tft->setCursor(VALUE_TEXT_X_OFFSET_128, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+        value_drawer->drawPrice(7, coin_total, 2, 1, currency);
+      } else {
+        tft->setCursor(VALUE_TEXT_X_OFFSET_160, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+        value_drawer->drawPrice(10, coin_total, 2, 1, currency);
+      }
 
-      tft->setCursor(123, 28 + drawing_count * 10);
-
+      // draw percentage change
+      if (tft->width() == 128){
+        tft->setCursor(PERFORMANCE_TEXT_X_OFFSET_128, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+      } else {
+        tft->setCursor(PERFORMANCE_TEXT_X_OFFSET_160, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+      }
       value_drawer->drawPercentageChange(4, sorted_coins[i]->current_change, 2, 1);
 
       drawing_count++;
@@ -129,7 +151,6 @@ void Portfolio::drawBarSummary(double *total_value, int currency) {
   }
 }
 
-// Display the proportion screen with pie chart
 void Portfolio::drawPieSummary(double *total_value) {
   double coin_total = 0;
   double current_total = 0;
@@ -141,17 +162,23 @@ void Portfolio::drawPieSummary(double *total_value) {
     }
 
     if (sorted_coins[i]->amount > 0) {
-      coin_total =
-        sorted_coins[i]->current_price * sorted_coins[i]->amount;
-      tft->setTextSize(1);
-      tft->setCursor(7, 28 + drawing_count * 10);
-      tft->fillRect(2, 27 + drawing_count * 10, 2, 10,
+      coin_total = sorted_coins[i]->current_price * sorted_coins[i]->amount;
+      
+      // Set text properties
+      tft->setTextSize(TEXT_SIZE);
+      tft->setCursor(TEXT_X_OFFSET, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+      
+      // Draw color indicator rectangle
+      tft->fillRect(COLOR_RECT_X, 
+                    TEXT_Y_OFFSET - 1 + drawing_count * TEXT_Y_SPACING, 
+                    COLOR_RECT_WIDTH, 
+                    TEXT_Y_SPACING, 
                     sorted_coins[i]->portfolio_colour);
-      tft->print(
-        sorted_coins[i]->coin_code);
-      tft->setCursor(50, 28 + drawing_count * 10);
-      tft->setTextColor(WHITE);
 
+      // Print coin code and percentage
+      tft->print(sorted_coins[i]->coin_code);
+      tft->setCursor(PERCENTAGE_TEXT_X_OFFSET, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+      tft->setTextColor(WHITE);
       tft->print(coin_total / (*total_value) * 100, 1);
       tft->print('%');
 
@@ -159,16 +186,27 @@ void Portfolio::drawPieSummary(double *total_value) {
     }
   }
 
-  // Draw pie chart proportional to amount of coin owned
-  double startAngle = 270.0;
+  // Draw pie chart proportional to the amount of coin owned
+  double startAngle = 0;
   for (int i = 0; i < COIN_COUNT; i++) {
     if (sorted_coins[i]->amount > 0) {
       double coin_total = sorted_coins[i]->current_price * sorted_coins[i]->amount;
       double endAngle = startAngle + (coin_total / *total_value) * 360.0;
 
-      fillSegment(tft->width() / 2 + 41, tft->height() / 2 + 5,
-                  startAngle, endAngle, 32, 16,
+      if (tft->width() == 128){
+        fillSegment(tft->width() / 2 + PIE_CHART_CENTER_X_OFFSET_128, 
+                  tft->height() / 2 + PIE_CHART_CENTER_Y_OFFSET_128,
+                  startAngle, endAngle, 
+                  PIE_CHART_RADIUS_OUTER_128, PIE_CHART_RADIUS_INNER_128,
                   sorted_coins[i]->portfolio_colour);
+      } else  {
+        fillSegment(tft->width() / 2 + PIE_CHART_CENTER_X_OFFSET_160, 
+                  tft->height() / 2 + PIE_CHART_CENTER_Y_OFFSET_160,
+                  startAngle, endAngle, 
+                  PIE_CHART_RADIUS_OUTER_160, PIE_CHART_RADIUS_INNER_160,
+                  sorted_coins[i]->portfolio_colour);
+      }
+      
 
       startAngle = endAngle;
     }
@@ -355,8 +393,8 @@ bool Portfolio::isInsideSegment(int px, int py, int x, int y, double startAngle,
     startAngle = fmod(startAngle, 360.0);
     endAngle = fmod(endAngle, 360.0);
 
-    if (startAngle < 0) startAngle += 360.0;
-    if (endAngle < 0) endAngle += 360.0;
+    while (startAngle < 0) startAngle += 360.0;
+    while (endAngle < 0) endAngle += 360.0;
 
     if (startAngle <= endAngle) {
         // Simple case: angle range does not cross 0 degrees

@@ -44,21 +44,21 @@ void Network_Manager::scanForNetworks() {
 
     // populate the buffers
     for (int i = 0; i < all_networks_count; ++i) {
-      // check SSID length doesnt overflow network object
       int ssid_len = std::strlen(WiFi.SSID(i).c_str());
       if (ssid_len >= MAX_SSID_LENGTH - 1) {
-        continue;
+          continue;
       }
-      network_count++;
 
-// copy properties into network object
-std:
-      strncpy(networks[i].SSID, WiFi.SSID(i).c_str(), ssid_len);
-      networks[i].SSID[ssid_len] = 0;  // ensure null terminator
-      networks[i].strength = dBmtoPercentage(WiFi.RSSI(i));
-      networks[i].hidden = WiFi.isHidden(i);
-      networks[i].password_needed = (i == 7) ? false : true;
-    }
+      // Copy properties into network object at the correct position
+      strncpy(networks[network_count].SSID, WiFi.SSID(i).c_str(), ssid_len);
+      networks[network_count].SSID[ssid_len] = 0; // Ensure null terminator
+      networks[network_count].strength = dBmtoPercentage(WiFi.RSSI(i));
+      networks[network_count].hidden = WiFi.isHidden(i);
+      networks[network_count].password_needed = (i == 7) ? false : true;
+
+      // Only increment network_count after a valid network is added
+      network_count++;
+  }
 
     // now sort the networks by the signal strength
     sortNetworks(networks, network_count);
@@ -297,21 +297,29 @@ void Network_Manager::loadAndConnect() {
     screen->print("\n ");
 
     int i = 0;
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      i++;
-      if (i < 20) {
-        screen->fillRect(5 + ((i - 1) * (screen->width() - 10) / 30), 58, (screen->width() - 10) / 30, 8, WHITE);
-      } else {
-        screen->fillRect(5 + ((i - 1) * (screen->width() - 10) / 30), 58, (screen->width() - 10) / 30, 8, RED);
-      }
+    int maxIterations = 60;
+    int segmentWidth = (screen->width() - 10) / maxIterations;
 
-      if (i == 30) {
-        keyboard->reset();
-        screen->fillScreen(BLACK);
-        scanForNetworks();
-        return;
-      }
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(250);
+        i++;
+
+        // Calculate the x position of the rectangle
+        int xPos = 5 + (i - 1) * segmentWidth;
+
+        // Determine the color: WHITE for the first 20 iterations, RED afterward
+        int color = (i < 20) ? WHITE : RED;
+
+        // Draw the rectangle on the screen
+        screen->fillRect(xPos, 58, segmentWidth, 8, color);
+
+        // If the maximum number of iterations is reached, reset and scan for networks
+        if (i == maxIterations) {
+            keyboard->reset();
+            screen->fillScreen(BLACK);
+            scanForNetworks();
+            return;
+        }
     }
 
     state = Network_State::CONNECTED;
@@ -321,7 +329,7 @@ void Network_Manager::loadAndConnect() {
 
     screen->print("\n ");
     screen->setTextColor(LIGHT_GREEN);
-    screen->println("\n Connection Established");
+    screen->println("\n Connected");
     screen->setTextColor(WHITE);
     screen->println("\n IP address: ");
     screen->print(" ");

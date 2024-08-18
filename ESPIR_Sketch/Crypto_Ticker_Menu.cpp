@@ -60,7 +60,7 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_ST7735* tft, COIN** coins, Portf
   clear_settings = new Button("Reset Settings", [=] {
     menu->reset();
   });
-  clear_wifi_credentials = new Button("Clear WiFi Credentials", [=] {
+  clear_wifi_credentials = new Button("Clear WiFi Info", [=] {
     network_manager->clearCredentials();
   });
 
@@ -120,29 +120,22 @@ void Crypto_Ticker_Menu::displayMemoryInfo(){
   uint8_t start = 85;
   screen->fillRect(0, start, screen->width(), screen->height() - start, BLACK);
 
-  // draw heap size
-  screen->setCursor(2, start);
-  screen->setTextColor(DARK_GREY);
-  screen->print("Flash size:     ");
-  screen->setTextColor(WHITE);
-  screen->print(ESP.getFlashChipRealSize());
-
   // draw free heap data
-  screen->setCursor(2, start + 10);
+  screen->setCursor(2, start);
   screen->setTextColor(DARK_GREY);
   screen->print("Free heap:      ");
   screen->setTextColor(WHITE);
   screen->print(ESP.getFreeHeap());
 
   // draw max free block size
-  screen->setCursor(2, start + 20);
+  screen->setCursor(2, start + 10);
   screen->setTextColor(DARK_GREY);
   screen->print("Max free block: ");
   screen->setTextColor(WHITE);
   screen->print(ESP.getMaxFreeBlockSize());
 
   // draw fragmentation stats
-  screen->setCursor(2, start + 30);
+  screen->setCursor(2, start + 20);
   screen->setTextColor(DARK_GREY);
   screen->print("Fragmentation:  ");
   if (ESP.getHeapFragmentation() < 33)
