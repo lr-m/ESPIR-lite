@@ -1,10 +1,10 @@
 #include "Keyboard.h"
 #include "HardwareSerial.h"
 #include <Adafruit_GFX.h>     // Core graphics library
-#include <Adafruit_ST7735.h>  // Hardware-specific library for ST7735
+#include <Adafruit_GFX.h>  // Hardware-specific library for ST7735
 
 // Constructor for Keyboard
-Keyboard::Keyboard(Adafruit_ST7735* display) {
+Keyboard::Keyboard(Adafruit_GFX* display) {
   tft = display;
 
   // Allocate space for buttons
@@ -447,7 +447,7 @@ void Keyboard::displayInstructions() {
 }
 
 // Constructor for Key
-Key::Key(Adafruit_ST7735* display, int x_pos, int y_pos, int width,
+Key::Key(Adafruit_GFX* display, int x_pos, int y_pos, int width,
          int height, char* act, int bottom) {
   tft = display;
   x = x_pos;

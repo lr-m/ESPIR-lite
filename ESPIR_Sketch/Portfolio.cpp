@@ -6,21 +6,33 @@
 #include "Portfolio.h"
 
 // Constructor for Portfolio Editor
-Portfolio::Portfolio(Adafruit_ST7735 *display,
+Portfolio::Portfolio(Adafruit_GFX *tft,
                      COIN **coin_arr, Value_Drawer *drawer)
-  : value_drawer(drawer), tft(display), coins(coin_arr) {
-  candle_chart = new Candle_Chart(tft, CANDLE_COUNT, 36, tft->height() - 12, 1);
+  : value_drawer(drawer), tft(tft), coins(coin_arr) {
+    uint8_t candle_offset = 0;
+    if (tft->width() == 128){
+      candle_offset = CANDLE_OFFSET_Y_128;
+    } else if (tft->width() == 160){
+      candle_offset = CANDLE_OFFSET_Y_160;
+    } else if (tft->width() == 320){
+      candle_offset = CANDLE_OFFSET_Y_320;
+    }
+  candle_chart = new Candle_Chart(tft, candle_offset, tft->height() - 12, 1);
 }
 
 // Draw the current value of the portfolio
 void Portfolio::drawValue(double *total_value, int currency) {
   tft->setTextColor(WHITE);
-  tft->setCursor(3, 4);
 
   if (tft->width() == 128){
+    tft->setCursor(3, 4);
     value_drawer->drawPrice(9, *total_value, 2, 2, currency);
-  } else {
+  } else if (tft->width() == 160) {
+    tft->setCursor(3, 4);
     value_drawer->drawPrice(12, *total_value, 2, 2, currency);
+  } else if (tft->width() == 320) {
+    tft->setCursor(3, 2);
+    value_drawer->drawPrice(12, *total_value, 2, 4, currency);
   }
 }
 
@@ -60,9 +72,19 @@ void Portfolio::drawPropBar(double *total_value) {
       coin_total =
         sorted_coins[i]->current_price * sorted_coins[i]->amount;
 
-      tft->fillRect((current_total * (tft->width() / *total_value)), 21,
-                    1 + (coin_total * (tft->width() / *total_value)), 3,
+      if (tft->width() == 128){
+        tft->fillRect((current_total * (tft->width() / *total_value)), BAR_Y_128,
+                    1 + (coin_total * (tft->width() / *total_value)), BAR_THICKNESS_128,
                     sorted_coins[i]->portfolio_colour);
+      } else if (tft->width() == 160){
+        tft->fillRect((current_total * (tft->width() / *total_value)), BAR_Y_160,
+                    1 + (coin_total * (tft->width() / *total_value)), BAR_THICKNESS_160,
+                    sorted_coins[i]->portfolio_colour);
+      } else if (tft->width() == 320){
+        tft->fillRect((current_total * (tft->width() / *total_value)), BAR_Y_320,
+                    1 + (coin_total * (tft->width() / *total_value)), BAR_THICKNESS_320,
+                    sorted_coins[i]->portfolio_colour);
+      }
 
       current_total += coin_total;
     }
@@ -97,8 +119,7 @@ void Portfolio::clearCandles() {
   candle_chart->reset();
 }
 
-
-// Display the coin breakdown screen with bar proportional bar chart
+// Display the coin breakdown screen with a proportional bar chart
 void Portfolio::drawBarSummary(double *total_value, int currency) {
   drawPropBar(total_value);
 
@@ -106,45 +127,66 @@ void Portfolio::drawBarSummary(double *total_value, int currency) {
   int drawing_count = 0;
   double coin_total = 0;
 
+  // Determine the text and rectangle properties based on screen width
+  int text_size, text_x_offset, text_y_offset, text_y_spacing, color_rect_x, color_rect_width, value_text_x_offset, performance_text_x_offset, rect_y_offset;
+
+  if (tft->width() == 128) {
+    text_size = TEXT_SIZE_128;
+    text_x_offset = TEXT_X_OFFSET_128;
+    text_y_offset = TEXT_Y_OFFSET_128;
+    text_y_spacing = TEXT_Y_SPACING_128;
+    color_rect_x = COLOR_RECT_X_128;
+    color_rect_width = COLOR_RECT_WIDTH_128;
+    value_text_x_offset = VALUE_TEXT_X_OFFSET_128;
+    performance_text_x_offset = PERFORMANCE_TEXT_X_OFFSET_128;
+    rect_y_offset = -1;
+  } else if (tft->width() == 160) {
+    text_size = TEXT_SIZE_160;
+    text_x_offset = TEXT_X_OFFSET_160;
+    text_y_offset = TEXT_Y_OFFSET_160;
+    text_y_spacing = TEXT_Y_SPACING_160;
+    color_rect_x = COLOR_RECT_X_160;
+    color_rect_width = COLOR_RECT_WIDTH_160;
+    value_text_x_offset = VALUE_TEXT_X_OFFSET_160;
+    performance_text_x_offset = PERFORMANCE_TEXT_X_OFFSET_160;
+    rect_y_offset = -1;
+  } else if (tft->width() == 320) {
+    text_size = TEXT_SIZE_320;
+    text_x_offset = TEXT_X_OFFSET_320;
+    text_y_offset = TEXT_Y_OFFSET_320;
+    text_y_spacing = TEXT_Y_SPACING_320;
+    color_rect_x = COLOR_RECT_X_320;
+    color_rect_width = COLOR_RECT_WIDTH_320;
+    value_text_x_offset = VALUE_TEXT_X_OFFSET_320;
+    performance_text_x_offset = PERFORMANCE_TEXT_X_OFFSET_320;
+    rect_y_offset = -3;
+  }
+
   for (int i = page_base; i < page_base + COIN_PAGE_LIMIT; i++) {
     if (i >= COIN_COUNT) {
       break;
     }
     if (sorted_coins[i]->amount > 0) {
-      coin_total =
-        sorted_coins[i]->current_price * sorted_coins[i]->amount;
+      coin_total = sorted_coins[i]->current_price * sorted_coins[i]->amount;
 
-      // Set text properties
-      tft->setTextSize(TEXT_SIZE);
-      tft->setCursor(TEXT_X_OFFSET, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
+      // Set text properties and cursor position
+      tft->setTextSize(text_size);
+      tft->setCursor(text_x_offset, text_y_offset + drawing_count * text_y_spacing);
       
       // Draw color indicator rectangle
-      tft->fillRect(COLOR_RECT_X, 
-                    TEXT_Y_OFFSET - 1 + drawing_count * TEXT_Y_SPACING, 
-                    COLOR_RECT_WIDTH, 
-                    TEXT_Y_SPACING, 
-                    sorted_coins[i]->portfolio_colour);
-        
-      // Print coin code and percentage
+      tft->fillRect(color_rect_x, text_y_offset + rect_y_offset + drawing_count * text_y_spacing, color_rect_width, text_y_spacing, sorted_coins[i]->portfolio_colour);
+      
+      // Print coin code and set text color
       tft->print(sorted_coins[i]->coin_code);
       tft->setTextColor(WHITE);
 
-      // draw value
-      if (tft->width() == 128){
-        tft->setCursor(VALUE_TEXT_X_OFFSET_128, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
-        value_drawer->drawPrice(7, coin_total, 2, 1, currency);
-      } else {
-        tft->setCursor(VALUE_TEXT_X_OFFSET_160, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
-        value_drawer->drawPrice(10, coin_total, 2, 1, currency);
-      }
+      // Draw value
+      tft->setCursor(value_text_x_offset, text_y_offset + drawing_count * text_y_spacing);
+      value_drawer->drawPrice(7, coin_total, 2, text_size, currency);
 
-      // draw percentage change
-      if (tft->width() == 128){
-        tft->setCursor(PERFORMANCE_TEXT_X_OFFSET_128, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
-      } else {
-        tft->setCursor(PERFORMANCE_TEXT_X_OFFSET_160, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
-      }
-      value_drawer->drawPercentageChange(4, sorted_coins[i]->current_change, 2, 1);
+      // Draw percentage change
+      tft->setCursor(performance_text_x_offset, text_y_offset + drawing_count * text_y_spacing);
+      value_drawer->drawPercentageChange(4, sorted_coins[i]->current_change, 2, text_size);
 
       drawing_count++;
     }
@@ -153,64 +195,135 @@ void Portfolio::drawBarSummary(double *total_value, int currency) {
 
 void Portfolio::drawPieSummary(double *total_value) {
   double coin_total = 0;
-  double current_total = 0;
   int drawing_count = 0;
 
-  for (int i = page_base; i < page_base + COIN_PAGE_LIMIT; i++) {
-    if (i >= COIN_COUNT) {
-      break;
-    }
+  // Determine properties based on screen width (same as before)
+  int text_size, text_x_offset, text_y_offset, text_y_spacing, color_rect_x, color_rect_width, percentage_text_x_offset, rect_y_offset, pie_chart_center_x, pie_chart_center_y, pie_chart_radius_outer, pie_chart_radius_inner;
 
-    if (sorted_coins[i]->amount > 0) {
-      coin_total = sorted_coins[i]->current_price * sorted_coins[i]->amount;
-      
-      // Set text properties
-      tft->setTextSize(TEXT_SIZE);
-      tft->setCursor(TEXT_X_OFFSET, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
-      
-      // Draw color indicator rectangle
-      tft->fillRect(COLOR_RECT_X, 
-                    TEXT_Y_OFFSET - 1 + drawing_count * TEXT_Y_SPACING, 
-                    COLOR_RECT_WIDTH, 
-                    TEXT_Y_SPACING, 
-                    sorted_coins[i]->portfolio_colour);
-
-      // Print coin code and percentage
-      tft->print(sorted_coins[i]->coin_code);
-      tft->setCursor(PERCENTAGE_TEXT_X_OFFSET, TEXT_Y_OFFSET + drawing_count * TEXT_Y_SPACING);
-      tft->setTextColor(WHITE);
-      tft->print(coin_total / (*total_value) * 100, 1);
-      tft->print('%');
-
-      drawing_count++;
-    }
+  if (tft->width() == 128) {
+    text_size = TEXT_SIZE_128;
+    text_x_offset = TEXT_X_OFFSET_128;
+    text_y_offset = TEXT_Y_OFFSET_128;
+    text_y_spacing = TEXT_Y_SPACING_128;
+    color_rect_x = COLOR_RECT_X_128;
+    color_rect_width = COLOR_RECT_WIDTH_128;
+    percentage_text_x_offset = PERCENTAGE_TEXT_X_OFFSET_128;
+    rect_y_offset = -1;
+    pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_128;
+    pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_128;
+    pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_128;
+    pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_128;
+  } else if (tft->width() == 160) {
+    text_size = TEXT_SIZE_160;
+    text_x_offset = TEXT_X_OFFSET_160;
+    text_y_offset = TEXT_Y_OFFSET_160;
+    text_y_spacing = TEXT_Y_SPACING_160;
+    color_rect_x = COLOR_RECT_X_160;
+    color_rect_width = COLOR_RECT_WIDTH_160;
+    percentage_text_x_offset = PERCENTAGE_TEXT_X_OFFSET_160;
+    rect_y_offset = -1;
+    pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_160;
+    pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_160;
+    pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_160;
+    pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_160;
+  } else if (tft->width() == 320) {
+    text_size = TEXT_SIZE_320;
+    text_x_offset = TEXT_X_OFFSET_320;
+    text_y_offset = TEXT_Y_OFFSET_320;
+    text_y_spacing = TEXT_Y_SPACING_320;
+    color_rect_x = COLOR_RECT_X_320;
+    color_rect_width = COLOR_RECT_WIDTH_320;
+    percentage_text_x_offset = PERCENTAGE_TEXT_X_OFFSET_320;
+    rect_y_offset = -1;
+    pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_320;
+    pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_320;
+    pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_320;
+    pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_320;
   }
 
-  // Draw pie chart proportional to the amount of coin owned
-  double startAngle = 0;
-  for (int i = 0; i < COIN_COUNT; i++) {
-    if (sorted_coins[i]->amount > 0) {
-      double coin_total = sorted_coins[i]->current_price * sorted_coins[i]->amount;
-      double endAngle = startAngle + (coin_total / *total_value) * 360.0;
+  // Array to store angle ranges and colors
+    double angles[COIN_COUNT][2];
+    unsigned int colors[COIN_COUNT];
+    int segment_count = 0;
+    double startAngle = 0;
 
-      if (tft->width() == 128){
-        fillSegment(tft->width() / 2 + PIE_CHART_CENTER_X_OFFSET_128, 
-                  tft->height() / 2 + PIE_CHART_CENTER_Y_OFFSET_128,
-                  startAngle, endAngle, 
-                  PIE_CHART_RADIUS_OUTER_128, PIE_CHART_RADIUS_INNER_128,
-                  sorted_coins[i]->portfolio_colour);
-      } else  {
-        fillSegment(tft->width() / 2 + PIE_CHART_CENTER_X_OFFSET_160, 
-                  tft->height() / 2 + PIE_CHART_CENTER_Y_OFFSET_160,
-                  startAngle, endAngle, 
-                  PIE_CHART_RADIUS_OUTER_160, PIE_CHART_RADIUS_INNER_160,
-                  sorted_coins[i]->portfolio_colour);
-      }
-      
+    for (int i = 0; i < COIN_COUNT; i++) {
+        if (i >= COIN_COUNT) {
+            break;
+        }
 
-      startAngle = endAngle;
+        if (sorted_coins[i]->amount > 0) {
+            // only draw if in current range
+            if (i + page_base < page_base + COIN_PAGE_LIMIT){
+              double drawing_coin_total = sorted_coins[i + page_base]->current_price * sorted_coins[i + page_base]->amount;
+
+              // Set text properties and draw coin details
+              tft->setTextSize(text_size);
+              tft->setCursor(text_x_offset, text_y_offset + drawing_count * text_y_spacing);
+
+              // Draw color indicator rectangle
+              tft->fillRect(color_rect_x, text_y_offset + rect_y_offset + drawing_count * text_y_spacing, color_rect_width, text_y_spacing, sorted_coins[i + page_base]->portfolio_colour);
+
+              // Print coin code and percentage
+              tft->print(sorted_coins[i + page_base]->coin_code);
+              tft->setCursor(percentage_text_x_offset, text_y_offset + drawing_count * text_y_spacing);
+
+              tft->setTextColor(WHITE);
+              tft->print(drawing_coin_total / (*total_value) * 100, 1);
+              tft->print('%');
+
+              drawing_count++;
+            }
+
+            // Calculate the angle range for this segment
+            double coin_total = sorted_coins[i]->current_price * sorted_coins[i]->amount;
+            double endAngle = startAngle + (coin_total / *total_value) * 360.0;
+
+            // Store the angle range and color for this segment
+            angles[segment_count][0] = startAngle;
+            angles[segment_count][1] = endAngle;
+            colors[segment_count] = sorted_coins[i]->portfolio_colour;
+            segment_count++;
+
+            // Move to the next segment
+            startAngle = endAngle;
+        }
     }
-  }
+
+    // Now, scan all pixels in the bounding box of the donut
+    pie_chart_center_x += tft->width() / 2;
+    pie_chart_center_y += tft->height() / 2;
+
+    int xMin = pie_chart_center_x - pie_chart_radius_outer;
+    int xMax = pie_chart_center_x + pie_chart_radius_outer;
+    int yMin = pie_chart_center_y - pie_chart_radius_outer;
+    int yMax = pie_chart_center_y + pie_chart_radius_outer;
+
+    for (int x = xMin; x <= xMax; x++) {
+        for (int y = yMin; y <= yMax; y++) {
+            // Compute the distance from the center
+            int dx = x - pie_chart_center_x;
+            int dy = y - pie_chart_center_y;
+            double distSquared = dx * dx + dy * dy;
+
+            // Check if the pixel is within the donut's radius range
+            if (distSquared >= pie_chart_radius_inner * pie_chart_radius_inner &&
+                distSquared <= pie_chart_radius_outer * pie_chart_radius_outer) {
+                
+                // Compute the angle of the pixel relative to the center
+                double angle = atan2(dy, dx) * 180.0 / M_PI;
+                if (angle < 0) angle += 360.0; // Normalize to [0, 360)
+
+                // Find the segment that this angle falls into
+                for (int i = 0; i < segment_count; i++) {
+                    if (angle >= angles[i][0] && angle <= angles[i][1]) {
+                        tft->drawPixel(x, y, colors[i]);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Portfolio::press(int currency) {
@@ -304,105 +417,6 @@ float Portfolio::getFloatValue() {
     }
   }
   return value;
-}
-
-void Portfolio::fillSegment(int x, int y, double startAngle, double endAngle, int r, int innerR, unsigned int colour) {
-    // Ensure the inner radius is smaller than the outer radius
-    if (innerR >= r) {
-        return; // Invalid case: inner radius should be smaller than outer radius
-    }
-
-    // Normalize angles to [0, 360) range
-    startAngle = fmod(startAngle, 360.0);
-    if (startAngle < 0) startAngle += 360.0;
-
-    endAngle = fmod(endAngle, 360.0);
-    if (endAngle < 0) endAngle += 360.0;
-
-    // Handle the case where endAngle is less than startAngle (crossing 0 degrees)
-    if (endAngle < startAngle) endAngle += 360.0;
-
-    // Calculate the bounding box
-    int minX = std::max(0, x - r);
-    int maxX = std::min(tft->width() - 1, x + r);
-    int minY = std::max(0, y - r);
-    int maxY = std::min(tft->height() - 1, y + r);
-
-    // Draw the segment with a hollow region
-    for (int py = minY; py <= maxY; py++) {
-        // Variables to keep track of the outer and inner bounds
-        int outerLeftX = -1;
-        int outerRightX = -1;
-        int innerLeftX = -1;
-        int innerRightX = -1;
-
-        for (int px = minX; px <= maxX; px++) {
-            // Determine if (px, py) is within the outer segment
-            if (isInsideSegment(px, py, x, y, startAngle, endAngle, r, 0)) {
-                if (outerLeftX == -1) {
-                    outerLeftX = px;
-                }
-                outerRightX = px;
-            }
-
-            // Determine if (px, py) is within the inner segment
-            if (isInsideSegment(px, py, x, y, startAngle, endAngle, innerR, 0)) {
-                if (innerLeftX == -1) {
-                    innerLeftX = px;
-                }
-                innerRightX = px;
-            }
-        }
-
-        // Draw lines considering the inner radius
-        if (outerLeftX != -1 && outerRightX != -1) {
-            if (innerLeftX == -1) {
-                // No inner circle, draw the full line
-                tft->drawLine(outerLeftX, py, outerRightX, py, colour);
-            } else {
-                // Draw outer parts before and after the inner circle
-                if (outerLeftX < innerLeftX) {
-                    tft->drawLine(outerLeftX, py, innerLeftX - 1, py, colour);
-                }
-                if (outerRightX > innerRightX) {
-                    tft->drawLine(innerRightX + 1, py, outerRightX, py, colour);
-                }
-            }
-        }
-    }
-}
-
-// Helper method to check if a point is inside the segment
-bool Portfolio::isInsideSegment(int px, int py, int x, int y, double startAngle, double endAngle, int r, int innerR) {
-    // Check if the point is within the outer circle radius and outside the inner radius
-    int dx = px - x;
-    int dy = py - y;
-    double distanceSquared = dx * dx + dy * dy;
-    double outerRadiusSquared = r * r;
-    double innerRadiusSquared = innerR * innerR;
-
-    if (distanceSquared > outerRadiusSquared || distanceSquared < innerRadiusSquared) {
-        return false;
-    }
-
-    // Calculate the angle of the point relative to the center (x, y)
-    double angle = atan2(py - y, px - x) * 180.0 / M_PI;
-    if (angle < 0) angle += 360.0;
-
-    // Normalize the angles for comparison
-    startAngle = fmod(startAngle, 360.0);
-    endAngle = fmod(endAngle, 360.0);
-
-    while (startAngle < 0) startAngle += 360.0;
-    while (endAngle < 0) endAngle += 360.0;
-
-    if (startAngle <= endAngle) {
-        // Simple case: angle range does not cross 0 degrees
-        return (angle >= startAngle && angle <= endAngle);
-    } else {
-        // Case where the segment crosses 0 degrees
-        return (angle >= startAngle || angle <= endAngle);
-    }
 }
 
 void Portfolio::clear() {

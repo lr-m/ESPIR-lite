@@ -4,7 +4,7 @@
 */
 
 #include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
+#include <Adafruit_GFX.h>
 #include <ST7735_Menu.h>
 #include <cstring>
 
@@ -15,13 +15,32 @@
 #ifndef Portfolio_Editor_h
 #define Portfolio_Editor_h
 
-#define OPTION_SEP 8
-#define OPTION_HEIGHT 12
-#define BACKGROUND_HEIGHT 10
-#define BACKGROUND_X_PADDING 2
-#define LABEL_HEIGHT 2
+// #define OPTION_SEP 8
+// #define OPTION_HEIGHT 12
+// #define BACKGROUND_HEIGHT 10
+// #define BACKGROUND_X_PADDING 2
+// #define LABEL_HEIGHT 2
 
-#define SELECTED_LIMIT 10
+// for 128 width
+#define OPTION_SEP_128 8
+#define OPTION_HEIGHT_128 12
+#define BACKGROUND_HEIGHT_128 10
+#define BACKGROUND_X_PADDING_128 2
+#define LABEL_HEIGHT_128 2
+
+// for 160 width
+#define OPTION_SEP_160 8
+#define OPTION_HEIGHT_160 12
+#define BACKGROUND_HEIGHT_160 10
+#define BACKGROUND_X_PADDING_160 2
+#define LABEL_HEIGHT_160 2
+
+// for 320 width
+#define OPTION_SEP_320 16
+#define OPTION_HEIGHT_320 24
+#define BACKGROUND_HEIGHT_320 20
+#define BACKGROUND_X_PADDING_320 4
+#define LABEL_HEIGHT_320 4
 
 class Price_Selector {
 public:
@@ -29,11 +48,11 @@ public:
   void takeIntInput(uint32_t value);
   void setOldValue(double);
   double getValue();
-  void clear(Adafruit_ST7735* display);
+  void clear(Adafruit_GFX* display);
   void reset();
-  void display(Adafruit_ST7735* display);
-  void refresh(Adafruit_ST7735* display);
-  void addDecimalPoint(Adafruit_ST7735* display);
+  void display(Adafruit_GFX* display);
+  void refresh(Adafruit_GFX* display);
+  void addDecimalPoint(Adafruit_GFX* display);
   bool isDecimal() {
     return decimal_component_active;
   }

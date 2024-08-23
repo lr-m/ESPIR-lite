@@ -4,17 +4,15 @@ void placeholder() {
   // Serial.println("test");
 }
 
-Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_ST7735* tft, COIN** coins, Portfolio* portfolio, Network_Manager* network_manager)
-  : coins(coins), portfolio(portfolio), network_manager(network_manager) {
-  screen = tft;
-
+Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_GFX* tft, COIN** coins, Portfolio* portfolio, Network_Manager* network_manager)
+  : coins(coins), portfolio(portfolio), network_manager(network_manager), tft(tft) {
   selected_coins[0] = true;
 
   // initialise the menu
-  menu = new Menu(screen, STORAGE_SIZE);
+  menu = new Menu(tft, STORAGE_SIZE);
 
   // initialise the customize submenu and add elements
-  customize_submenu = new Submenu("Customize", screen);
+  customize_submenu = new Submenu("Customize", tft);
   coin_select_page = new Coin_Select_Page("Select Coins", coins, selected_coins, 20);
   portfolio_editor_page = new Portfolio_Editor_Page("Edit portfolio", coins, 20);
   currency_selector = new Selector("Currency:", currency_options, currency_options_index, 3, "customize:currency", 0);
@@ -26,7 +24,7 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_ST7735* tft, COIN** coins, Portf
   customize_submenu->addElement(currency_selector);
 
   // initialise the crypto settings submenu and add elements
-  crypto_settings_submenu = new Submenu("Crypto Settings", screen);
+  crypto_settings_submenu = new Submenu("Crypto Settings", tft);
 
   // init elements
   crypto_settings_reset_coins_button = new Button("Clear Coins", [=] {
@@ -46,7 +44,7 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_ST7735* tft, COIN** coins, Portf
   portfolio_settings_clear_portfolio_button = new Button("Clear Portfolio", [=] {
     portfolio->clear();
   });
-  portfolio_settings_submenu = new Submenu("Portfolio Settings", screen);
+  portfolio_settings_submenu = new Submenu("Portfolio Settings", tft);
   portfolio_settings_cycle_duration_slider = new Slider("Cycle Duration", 0, 60, 10, 10, "portfolio_settings:cycle_duration");
   portfolio_settings_candle_duration_slider = new Slider("Candle Duration", 5, 60, 5, 15, "portfolio_settings:candle_duration");
   
@@ -56,7 +54,7 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_ST7735* tft, COIN** coins, Portf
   portfolio_settings_submenu->addElement(portfolio_settings_candle_duration_slider);
   
   // initialise the storage settings submenu
-  storage_submenu = new Submenu("Storage Settings", screen);
+  storage_submenu = new Submenu("Storage Settings", tft);
   clear_settings = new Button("Reset Settings", [=] {
     menu->reset();
   });
@@ -118,33 +116,33 @@ bool Crypto_Ticker_Menu::isCoinSelected(int index){
 
 void Crypto_Ticker_Menu::displayMemoryInfo(){
   uint8_t start = 85;
-  screen->fillRect(0, start, screen->width(), screen->height() - start, BLACK);
+  tft->fillRect(0, start, tft->width(), tft->height() - start, BLACK);
 
   // draw free heap data
-  screen->setCursor(2, start);
-  screen->setTextColor(DARK_GREY);
-  screen->print("Free heap:      ");
-  screen->setTextColor(WHITE);
-  screen->print(ESP.getFreeHeap());
+  tft->setCursor(2, start);
+  tft->setTextColor(DARK_GREY);
+  tft->print("Free heap:      ");
+  tft->setTextColor(WHITE);
+  tft->print(ESP.getFreeHeap());
 
   // draw max free block size
-  screen->setCursor(2, start + 10);
-  screen->setTextColor(DARK_GREY);
-  screen->print("Max free block: ");
-  screen->setTextColor(WHITE);
-  screen->print(ESP.getMaxFreeBlockSize());
+  tft->setCursor(2, start + 10);
+  tft->setTextColor(DARK_GREY);
+  tft->print("Max free block: ");
+  tft->setTextColor(WHITE);
+  tft->print(ESP.getMaxFreeBlockSize());
 
   // draw fragmentation stats
-  screen->setCursor(2, start + 20);
-  screen->setTextColor(DARK_GREY);
-  screen->print("Fragmentation:  ");
+  tft->setCursor(2, start + 20);
+  tft->setTextColor(DARK_GREY);
+  tft->print("Fragmentation:  ");
   if (ESP.getHeapFragmentation() < 33)
-    screen->setTextColor(LIGHT_GREEN);
+    tft->setTextColor(LIGHT_GREEN);
   else if (ESP.getHeapFragmentation() < 66)
-    screen->setTextColor(ORANGE);
+    tft->setTextColor(ORANGE);
   else
-    screen->setTextColor(LIGHT_RED);
+    tft->setTextColor(LIGHT_RED);
 
-  screen->print(ESP.getHeapFragmentation());
-  screen->print("%");
+  tft->print(ESP.getHeapFragmentation());
+  tft->print("%");
 }

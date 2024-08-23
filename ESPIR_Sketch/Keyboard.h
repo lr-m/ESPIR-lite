@@ -1,5 +1,5 @@
 #include <Adafruit_GFX.h>     // Core graphics library
-#include <Adafruit_ST7735.h>  // Hardware-specific library for ST7735
+#include "TFT_abstraction_layer.h"
 #include "Colours.h"
 
 // ensure this library description is only included once
@@ -29,7 +29,7 @@ enum class Mode {
 
 class Key {
 public:
-  Key(Adafruit_ST7735*, int, int, int, int, char*, int);
+  Key(Adafruit_GFX*, int, int, int, int, char*, int);
   void display(Mode);
   void displaySelected(Mode);
 
@@ -40,7 +40,7 @@ public:
   char* action;
 
 private:
-  Adafruit_ST7735* tft;
+  Adafruit_GFX* tft;
   int bottom_key;
 };
 
@@ -48,7 +48,7 @@ private:
 class Keyboard {
   // user-accessible "public" interface
 public:
-  Keyboard(Adafruit_ST7735*);
+  Keyboard(Adafruit_GFX*);
   void press();
   void displayCurrentString();
   void display();
@@ -72,7 +72,7 @@ public:
 
   // library-accessible "private" interface
 private:
-  Adafruit_ST7735* tft;
+  Adafruit_GFX* tft;
   Key* letters;
   Key* numbers;
   Key* specials;

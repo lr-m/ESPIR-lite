@@ -4,7 +4,6 @@
 */
 
 #include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <cmath>
 
 #include "Candle_Chart.h"
@@ -12,6 +11,8 @@
 #include "Portfolio_Editor_Page.h"
 #include "Colours.h"
 #include "Value_Drawer.h"
+
+#include "TFT_abstraction_layer.h"
 
 #define COIN_COUNT 20
 #define COIN_PAGE_LIMIT 10
@@ -23,14 +24,40 @@
 #ifndef Portfolio_h
 #define Portfolio_h
 
-// for pie chart represenation
-#define TEXT_SIZE 1
-#define TEXT_X_OFFSET 7
-#define TEXT_Y_OFFSET 28
-#define TEXT_Y_SPACING 10
-#define PERCENTAGE_TEXT_X_OFFSET 40
-#define COLOR_RECT_X 2
-#define COLOR_RECT_WIDTH 2
+// define portfolio text sizes
+#define TEXT_SIZE_128 1
+#define TEXT_SIZE_160 1
+#define TEXT_SIZE_320 2
+
+#define BAR_THICKNESS_128 3
+#define BAR_THICKNESS_160 3
+#define BAR_THICKNESS_320 4
+
+#define BAR_Y_128 21
+#define BAR_Y_160 21
+#define BAR_Y_320 34
+
+// define percentage represenation offsets
+#define TEXT_X_OFFSET_128 7
+#define TEXT_Y_OFFSET_128 28
+#define TEXT_Y_SPACING_128 10
+#define PERCENTAGE_TEXT_X_OFFSET_128 40
+#define COLOR_RECT_X_128 2
+#define COLOR_RECT_WIDTH_128 2
+
+#define TEXT_X_OFFSET_160 7
+#define TEXT_Y_OFFSET_160 28
+#define TEXT_Y_SPACING_160 10
+#define PERCENTAGE_TEXT_X_OFFSET_160 40
+#define COLOR_RECT_X_160 2
+#define COLOR_RECT_WIDTH_160 2
+
+#define TEXT_X_OFFSET_320 7
+#define TEXT_Y_OFFSET_320 42
+#define TEXT_Y_SPACING_320 20
+#define PERCENTAGE_TEXT_X_OFFSET_320 90
+#define COLOR_RECT_X_320 1
+#define COLOR_RECT_WIDTH_320 3
 
 // for bar representation
 #define VALUE_TEXT_X_OFFSET_128 40
@@ -38,6 +65,9 @@
 
 #define VALUE_TEXT_X_OFFSET_160 52
 #define PERFORMANCE_TEXT_X_OFFSET_160 123
+
+#define VALUE_TEXT_X_OFFSET_320 104
+#define PERFORMANCE_TEXT_X_OFFSET_320 246
 
 // for pie chart size/positioning on other display widths
 #define PIE_CHART_CENTER_X_OFFSET_128 35
@@ -50,6 +80,16 @@
 #define PIE_CHART_RADIUS_OUTER_160 32
 #define PIE_CHART_RADIUS_INNER_160 16
 
+#define PIE_CHART_CENTER_X_OFFSET_320 76
+#define PIE_CHART_CENTER_Y_OFFSET_320 10
+#define PIE_CHART_RADIUS_OUTER_320 64
+#define PIE_CHART_RADIUS_INNER_320 36
+
+// for candle chart
+#define CANDLE_OFFSET_Y_128 36
+#define CANDLE_OFFSET_Y_160 36
+#define CANDLE_OFFSET_Y_320 48
+
 enum class DisplayMode {
   BAR,
   PIE,
@@ -58,7 +98,7 @@ enum class DisplayMode {
 
 class Portfolio {
 public:
-  Portfolio(Adafruit_ST7735 *, COIN **, Value_Drawer*);
+  Portfolio(Adafruit_GFX *, COIN **, Value_Drawer*);
   void display(int);
   void getTotalValue(double *);
   float getFloatValue();
@@ -79,14 +119,12 @@ public:
   void clear();
 
 private:
-  Adafruit_ST7735 *tft;
+  Adafruit_GFX *tft;
   void drawValue(double *, int);
   void drawBarSummary(double *, int);
   void drawPieSummary(double *);
   void drawCandleChart(double *, int);
   uint16_t page_base = 0;
-  void fillSegment(int x, int y, double startAngle, double endAngle, int r, int innerR, unsigned int colour);
-  bool isInsideSegment(int px, int py, int x, int y, double startAngle, double endAngle, int r, int innerR);
 };
 
 #endif

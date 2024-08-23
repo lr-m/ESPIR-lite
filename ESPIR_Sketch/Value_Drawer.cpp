@@ -10,20 +10,19 @@
         __typeof__ (b) _b = (b); \
         _a < _b ? _a : _b; })
 
-Value_Drawer::Value_Drawer(Adafruit_ST7735* tft) {
-  display = tft;
+Value_Drawer::Value_Drawer(Adafruit_GFX* tft) : tft(tft) {
 }
 
 void Value_Drawer::drawPrice(double available_space, double price, double max_precision, int size, int currency) {
-  display->setTextSize(size);
-  display->setTextColor(WHITE);
+  tft->setTextSize(size);
+  tft->setTextColor(WHITE);
 
   if (currency == 0) {  // GBP
-    display->print(char(156));
+    tft->print(char(156));
   } else if (currency == 1) {  // USD
-    display->print(char(36));
+    tft->print(char(36));
   } else if (currency == 2) {  // EUR
-    display->print(char(237));
+    tft->print(char(237));
   }
 
   // Calculate the minimum and maximum values that can fit in the space
@@ -32,10 +31,10 @@ void Value_Drawer::drawPrice(double available_space, double price, double max_pr
 
   // Represent number normally, but limit occupied space
   if (price == 0) {
-    display->print("0.");
+    tft->print("0.");
 
     for (int i = 0; i < available_space - 2; i++) {
-      display->print('0');
+      tft->print('0');
     }
   } else if (price < min) {
     double mul = 10;
@@ -51,9 +50,9 @@ void Value_Drawer::drawPrice(double available_space, double price, double max_pr
       e_val++;
     }
 
-    display->print((int)round(price * mul));
-    display->print('e');
-    display->print(e_val);
+    tft->print((int)round(price * mul));
+    tft->print('e');
+    tft->print(e_val);
   } else if (price >= max) {
     double div = 10;
     int e_val = 1;
@@ -68,9 +67,9 @@ void Value_Drawer::drawPrice(double available_space, double price, double max_pr
       e_val++;
     }
 
-    display->print((int)round(price / div));
-    display->print('e');
-    display->print(e_val);
+    tft->print((int)round(price / div));
+    tft->print('e');
+    tft->print(e_val);
   } else {
     int precision;
 
@@ -94,26 +93,26 @@ void Value_Drawer::drawPrice(double available_space, double price, double max_pr
       }
     }
 
-    display->print(price, precision);
+    tft->print(price, precision);
   }
 
-  display->setTextColor(WHITE);
+  tft->setTextColor(WHITE);
 }
 
 void Value_Drawer::drawSign(double value) {
   if (value < 0) {
-    display->setTextColor(LIGHT_RED);
-    display->print('-');
+    tft->setTextColor(LIGHT_RED);
+    tft->print('-');
   } else {
-    display->setTextColor(LIGHT_GREEN);
-    display->print('+');
+    tft->setTextColor(LIGHT_GREEN);
+    tft->print('+');
   }
 }
 
 // Draws the percentage change on the screen.
 void Value_Drawer::drawPercentageChange(double available_space,
                                         double value, double max_precision, int size) {
-  display->setTextSize(1);
+  tft->setTextSize(size);
 
   int sign;
 
@@ -134,13 +133,13 @@ void Value_Drawer::drawPercentageChange(double available_space,
   if (change_val == 0) {
     drawSign(value);
 
-    display->print("0.");
+    tft->print("0.");
 
     for (int i = 0; i < available_space - 2; i++) {
-      display->print('0');
+      tft->print('0');
     }
 
-    display->print('%');
+    tft->print('%');
   } else if (change_val < min) {
     double mul = 10;
     int e_val = -1;
@@ -156,10 +155,10 @@ void Value_Drawer::drawPercentageChange(double available_space,
     }
 
     drawSign(value);
-    display->print((int)round(change_val * mul));
-    display->print('e');
-    display->print(e_val);
-    display->print('%');
+    tft->print((int)round(change_val * mul));
+    tft->print('e');
+    tft->print(e_val);
+    tft->print('%');
   } else if (change_val >= max) {
     double div = 10;
     int e_val = 1;
@@ -175,10 +174,10 @@ void Value_Drawer::drawPercentageChange(double available_space,
     }
 
     drawSign(value);
-    display->print((int)round(change_val / div));
-    display->print('e');
-    display->print(e_val);
-    display->print('%');
+    tft->print((int)round(change_val / div));
+    tft->print('e');
+    tft->print(e_val);
+    tft->print('%');
   } else {
     int precision;
 
@@ -205,10 +204,10 @@ void Value_Drawer::drawPercentageChange(double available_space,
 
     drawSign(value);
 
-    display->print(change_val, precision);
+    tft->print(change_val, precision);
 
-    display->print('%');
+    tft->print('%');
   }
 
-  display->setTextColor(WHITE);
+  tft->setTextColor(WHITE);
 }

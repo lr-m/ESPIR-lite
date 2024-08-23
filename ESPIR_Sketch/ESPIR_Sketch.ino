@@ -1,5 +1,4 @@
 #include <Adafruit_GFX.h>     // Core graphics library
-#include <Adafruit_ST7735.h>  // Hardware-specific library for ST7735
 #include <IRremote.h>
 
 #include "Colours.h"
@@ -8,41 +7,44 @@
 #include "Coin.h"
 #include "Portfolio.h"
 #include "Network_Manager.h"
+#include "TFT_abstraction_layer.h"
 
 // Define PIN config
-#define TFT_SCL D1
-#define TFT_SDA D2
-#define TFT_RES D3
-#define TFT_DC D4
-#define RECV_PIN D5
-#define TFT_CS D6
+#define TFT_RES D0
+#define TFT_DC D1
+#define TFT_SCL D5
+#define TFT_SDA D7
+#define TFT_CS D2
+#define RECV_PIN D4
 
-#define UPDATE_PERIOD 30
+#define UPDATE_PERIOD 60
 
 extern unsigned char BTC_logo[];
 extern unsigned char ETH_logo[];
 extern unsigned char USDT_logo[];
-extern unsigned char ADA_logo[];
 extern unsigned char BNB_logo[];
-extern unsigned char XRP_logo[];
 extern unsigned char SOL_logo[];
-extern unsigned char DOT_logo[];
-extern unsigned char DOGE_logo[];
-extern unsigned char LTC_logo[];
-extern unsigned char AVAX_logo[];
-extern unsigned char ALGO_logo[];
-extern unsigned char XMR_logo[];
-extern unsigned char MATIC_logo[];
-extern unsigned char TRON_logo[];
-extern unsigned char ETC_logo[];
 extern unsigned char USDC_logo[];
-extern unsigned char BUSD_logo[];
+extern unsigned char XRP_logo[];
+extern unsigned char TON_logo[];
+extern unsigned char DOGE_logo[];
+extern unsigned char TRX_logo[];
+extern unsigned char ADA_logo[];
+extern unsigned char AVAX_logo[];
 extern unsigned char SHIB_logo[];
+extern unsigned char LINK_logo[];
+extern unsigned char BCH_logo[];
+extern unsigned char DOT_logo[];
+extern unsigned char LEO_logo[];
+extern unsigned char UNI_logo[];
+extern unsigned char NEAR_logo[];
 extern unsigned char DAI_logo[];
 
-// For ST7735-based displays, we will use this call
-Adafruit_ST7735 tft =
-  Adafruit_ST7735(TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
+extern unsigned char epd_bitmap_logo_red[];
+extern unsigned char epd_bitmap_logo_green[];
+
+// For ST7735-based displays, we will use this call (ST7789_SPI_320_240_INVERT)
+TFT tft = TFT(ST7789_SPI_320_240, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
 
 // IR remote
 decode_results results;
@@ -87,60 +89,58 @@ void setup(void) {
 
   IrReceiver.begin(RECV_PIN);
 
-  tft.initR(INITR_BLACKTAB);  // Init ST7735S chip (INITR_144GREENTAB = red 1.44, INITR_BLACKTAB = blue 1.88)
-  tft.setRotation(1);
-  tft.fillScreen(BLACK);
+  tft.init();
 
   // initialise value drawer, this is needed for scientific notation when numbers get big
-  value_drawer = new Value_Drawer(&tft);
+  value_drawer = new Value_Drawer(tft.getDisplay());
 
-  portfolio = new Portfolio(&tft, coins, value_drawer);
+  portfolio = new Portfolio(tft.getDisplay(), coins, value_drawer);
 
   // Background col, bitmap col, portfolio col
   coins[0] =
-    new COIN("BTC", "bitcoin", BTC_logo, GOLD, WHITE, GOLD, 0, value_drawer, &tft);
+    new COIN("BTC", "bitcoin", BTC_logo, BTC_BACKGROUND, BTC_FOREGROUND, BTC_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[1] =
-    new COIN("ETH", "ethereum", ETH_logo, VIOLET, GRAY, VIOLET, 0, value_drawer, &tft);
+    new COIN("ETH", "ethereum", ETH_logo, ETH_BACKGROUND, ETH_FOREGROUND, ETH_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[2] =
-    new COIN("USDT", "tether", USDT_logo, GREEN, WHITE, GREEN, 0, value_drawer, &tft);
+    new COIN("USDT", "tether", USDT_logo, USDT_BACKGROUND, USDT_FOREGROUND, USDT_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[3] =
-    new COIN("USDC", "usd-coin", USDC_logo, DARK_BLUE, WHITE, DARK_BLUE, 0, value_drawer, &tft);
+    new COIN("BNB", "binancecoin", BNB_logo, BNB_BACKGROUND, BNB_FOREGROUND, BNB_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[4] =
-    new COIN("BNB", "binancecoin", BNB_logo, WHITE, GOLD, GOLD, 0, value_drawer, &tft);
+    new COIN("SOL", "solana", SOL_logo, SOL_BACKGROUND, SOL_FOREGROUND, SOL_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[5] =
-    new COIN("XRP", "ripple", XRP_logo, DARK_GREY, WHITE, DARK_GREY, 0, value_drawer, &tft);
+    new COIN("USDC", "usd-coin", USDC_logo, USDC_BACKGROUND, USDC_FOREGROUND, USDC_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[6] =
-    new COIN("ADA", "cardano", ADA_logo, DARK_BLUE, WHITE, DARK_BLUE, 0, value_drawer, &tft);
+    new COIN("XRP", "ripple", XRP_logo, XRP_BACKGROUND, XRP_FOREGROUND, XRP_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[7] =
-    new COIN("BUSD", "binance-usd", BUSD_logo, WHITE, GOLD, GOLD, 0, value_drawer, &tft);
+    new COIN("TON", "the-open-network", TON_logo, TON_BACKGROUND, TON_FOREGROUND, TON_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[8] =
-    new COIN("SOL", "solana", SOL_logo, PINK, LIGHTNING_BLUE, PINK, 0, value_drawer, &tft);
+    new COIN("DOGE", "dogecoin", DOGE_logo, DOGE_BACKGROUND, DOGE_FOREGROUND, DOGE_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[9] =
-    new COIN("DOT", "polkadot", DOT_logo, WHITE, BLACK, WHITE, 0, value_drawer, &tft);
+    new COIN("TRX", "tron", TRX_logo, TRX_BACKGROUND, TRX_FOREGROUND, TRX_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[10] =
-    new COIN("DOGE", "dogecoin", DOGE_logo, GOLD, WHITE, GOLD, 0, value_drawer, &tft);
+    new COIN("ADA", "cardano", ADA_logo, ADA_BACKGROUND, ADA_FOREGROUND, ADA_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[11] =
-    new COIN("MATIC", "matic-network", MATIC_logo, PURPLE, WHITE, PURPLE, 0, value_drawer, &tft);
+    new COIN("AVAX", "avalanche-2", AVAX_logo, AVAX_BACKGROUND, AVAX_FOREGROUND, AVAX_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[12] =
-    new COIN("SHIB", "shiba-inu", SHIB_logo, RED, ORANGE, ORANGE, 0, value_drawer, &tft);
+    new COIN("SHIB", "shiba-inu", SHIB_logo, SHIB_BACKGROUND, SHIB_FOREGROUND, SHIB_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[13] =
-    new COIN("AVAX", "avalanche-2", AVAX_logo, RED, WHITE, RED, 0, value_drawer, &tft);
+    new COIN("LINK", "chainlink", LINK_logo, LINK_BACKGROUND, LINK_FOREGROUND, LINK_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[14] =
-    new COIN("DAI", "dai", DAI_logo, GOLD, WHITE, GOLD, 0, value_drawer, &tft);
+    new COIN("BCH", "bitcoin-cash", BCH_logo, BCH_BACKGROUND, BCH_FOREGROUND, BCH_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[15] =
-    new COIN("TRX", "tron", TRON_logo, RED, WHITE, RED, 0, value_drawer, &tft);
+    new COIN("DOT", "polkadot", DOT_logo, DOT_BACKGROUND, DOT_FOREGROUND, DOT_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[16] =
-    new COIN("ETC", "ethereum-classic", ETC_logo, WHITE, ETC_GREEN, ETC_GREEN, 0, value_drawer, &tft);
+    new COIN("LEO", "leo-token", LEO_logo, LEO_BACKGROUND, LEO_FOREGROUND, LEO_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[17] =
-    new COIN("LTC", "litecoin", LTC_logo, DARK_GREY, WHITE, DARK_GREY, 0, value_drawer, &tft);
+    new COIN("UNI", "uniswap", UNI_logo, UNI_BACKGROUND, UNI_FOREGROUND, UNI_FOREGROUND, 0, value_drawer, tft.getDisplay());
   coins[18] =
-    new COIN("XMR", "monero", XMR_logo, ORANGE, DARK_GREY, ORANGE, 0, value_drawer, &tft);
+    new COIN("NEAR", "near", NEAR_logo, NEAR_BACKGROUND, NEAR_FOREGROUND, NEAR_BACKGROUND, 0, value_drawer, tft.getDisplay());
   coins[19] =
-    new COIN("ALGO", "algorand", ALGO_logo, WHITE, BLACK, WHITE, 0, value_drawer, &tft);
+    new COIN("DAI", "dai", DAI_logo, DAI_BACKGROUND, DAI_FOREGROUND, DAI_BACKGROUND, 0, value_drawer, tft.getDisplay());
 
-  keyboard = new Keyboard(&tft);
-  menu = new Crypto_Ticker_Menu(&tft, coins, portfolio, network_manager);
-  network_manager = new Network_Manager(&tft, coins, keyboard);
+  keyboard = new Keyboard(tft.getDisplay());
+  menu = new Crypto_Ticker_Menu(tft.getDisplay(), coins, portfolio, network_manager);
+  network_manager = new Network_Manager(tft.getDisplay(), coins, keyboard);
 
   // load settings from menu into old values
   menu->getSliderValue("crypto_settings:candle_duration", &old_coin_candle_period);
@@ -152,8 +152,13 @@ void setup(void) {
     menu->getNextCoinIndex(&current_coin);  // get the index of the first selected coin to display on boot
   }
 
+  drawIntroAnimation();
+
   // load wifi creds and connect to network (or enter setup)
   network_manager->loadAndConnect();
+
+  tft.getDisplay()->setTextColor(LIGHT_GREEN);
+  tft.getDisplay()->println("\n Requesting info...");
 
   if ((state == State::NETWORK) && network_manager->isConnected()) {
     state == State::COIN;
@@ -162,6 +167,61 @@ void setup(void) {
     display();
   }
 }
+
+void drawIntroAnimation() {
+  tft.getDisplay()->fillScreen(BLACK);
+
+  if (tft.getDisplay()->width() == 128){
+    drawBitmap(0, 20, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
+    drawBitmap(0, 20, epd_bitmap_logo_red, 128, 56, RED, 1);
+  } else if (tft.getDisplay()->width() == 160){
+    drawBitmap(16, 20, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
+    drawBitmap(16, 20, epd_bitmap_logo_red, 128, 56, RED, 1);
+  } else if (tft.getDisplay()->width() == 320){
+    drawBitmap(32, tft.getDisplay()->height()/2 - 100, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 2);
+    drawBitmap(32, tft.getDisplay()->height()/2 - 100, epd_bitmap_logo_red, 128, 56, RED, 2);
+  }
+
+  tft.getDisplay()->setTextColor(WHITE);
+
+  int16_t x, y;
+  uint16_t width, height;
+
+  tft.getDisplay()->setTextSize(1);
+  tft.getDisplay()->getTextBounds("Powered by CoinGecko", 0, 0, &x, &y, &width, &height);
+  tft.getDisplay()->setCursor(tft.getDisplay()->width()/2 - width/2, tft.getDisplay()->height() - 20);
+  tft.getDisplay()->write("Powered by CoinGecko");
+
+  delay(2500);
+}
+
+// Draws a passed bitmap on the screen at the given position with the given
+// colour and scale.
+void drawBitmap(int16_t x, int16_t y,
+                const uint8_t* bitmap, int16_t w, int16_t h,
+                uint16_t color, int scale) {
+  int16_t i, j, byteWidth = (w + 7) / 8;
+  uint8_t byte;
+
+  for (j = 0; j < h; j++) {
+    for (i = 0; i < w; i++) {
+      if (i & 7)
+        byte <<= 1;
+      else
+        byte = pgm_read_byte(bitmap + j * byteWidth + i / 8);
+
+      if (byte & 0x80) {
+        // Draw a block of size scale x scale
+        for (int dx = 0; dx < scale; dx++) {
+          for (int dy = 0; dy < scale; dy++) {
+            tft.getDisplay()->drawPixel(x + i * scale + dx, y + j * scale + dy, color);
+          }
+        }
+      }
+    }
+  }
+}
+
 
 void updateTime() {
   // Check minutes and update time
@@ -482,7 +542,7 @@ void interact() {
 }
 
 void refreshAllCoins() {
-  tft.fillRect(tft.width() - 2, 0, 2, 2, WHITE);
+  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, WHITE);
   int indexes[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
   // refresh first 10 coins
   network_manager->refreshData(indexes, 10, menu->getCurrency());
@@ -492,7 +552,7 @@ void refreshAllCoins() {
     indexes[i] += 10;
   }
   network_manager->refreshData(indexes, 10, menu->getCurrency());
-  tft.fillRect(tft.width() - 2, 0, 2, 2, BLACK);
+  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
 }
 
 void clearCoinCandles(){
@@ -502,7 +562,7 @@ void clearCoinCandles(){
 }
 
 void refreshCoins() {
-  tft.fillRect(tft.width() - 2, 0, 2, 2, WHITE);
+  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, WHITE);
   int indexes[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
   if (update_group_flip_flop) {
     // refresh first 10 coins
@@ -515,7 +575,7 @@ void refreshCoins() {
     network_manager->refreshData(indexes, 10, menu->getCurrency());
   }
   update_group_flip_flop = !update_group_flip_flop;
-  tft.fillRect(tft.width() - 2, 0, 2, 2, BLACK);
+  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
   portfolio->addPriceToCandles();
 }
 

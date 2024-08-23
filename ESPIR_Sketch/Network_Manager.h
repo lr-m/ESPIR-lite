@@ -43,7 +43,7 @@ struct Network {
 
 class Network_Manager {
 public:
-  Network_Manager(Adafruit_ST7735* display, COIN** coins, Keyboard* keyboard);
+  Network_Manager(Adafruit_GFX* display, COIN** coins, Keyboard* keyboard);
   void scanForNetworks();
   void press();
   void back();
@@ -66,9 +66,6 @@ public:
   Network_State getState() {
     return state;
   }
-  Adafruit_ST7735* getScreen() {
-    return screen;
-  }
   bool saveSSID(char* ssid);
   bool savePassword(char* password);
   bool loadSSID(char* ssid);
@@ -84,7 +81,7 @@ private:
   Network_State state;
   Network* networks;
   bool isInitialised = false;
-  Adafruit_ST7735* screen;
+  Adafruit_GFX* tft;
   uint16_t network_count = 0;
   uint16_t ap_display_list_base = 0;
   COIN** coins;

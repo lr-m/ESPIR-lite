@@ -1,5 +1,5 @@
 #include <Adafruit_GFX.h>     // Core graphics library
-#include <Adafruit_ST7735.h>  // Hardware-specific library for ST7735
+#include "TFT_abstraction_layer.h"
 #include <cmath>
 
 #include "Colours.h"
@@ -9,13 +9,13 @@
 
 class Value_Drawer {
 public:
-  Value_Drawer(Adafruit_ST7735*);
+  Value_Drawer(Adafruit_GFX*);
   void drawPercentageChange(double, double, double, int);
   void drawPrice(double, double, double, int, int);
   void drawSign(double);
 
 private:
-  Adafruit_ST7735* display;
+  Adafruit_GFX* tft;
 };
 
 #endif

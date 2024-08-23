@@ -4,12 +4,17 @@
 */
 
 #include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
 
+#include "TFT_abstraction_layer.h"
 #include "Colours.h"
 
-#define CANDLE_WIDTH 3
-#define CANDLE_COUNT 26
+#define CANDLE_WIDTH_128 3
+#define CANDLE_WIDTH_160 3
+#define CANDLE_WIDTH_320 5
+
+#define CANDLE_COUNT_128 20
+#define CANDLE_COUNT_160 26
+#define CANDLE_COUNT_320 26
 
 #ifndef Candle_Chart_h
 #define Candle_Chart_h
@@ -24,7 +29,7 @@ typedef struct graph_candle {
 
 class Candle_Chart {
 public:
-  Candle_Chart(Adafruit_ST7735 *, uint16_t, int, int, int);
+  Candle_Chart(Adafruit_GFX *, int, int, int);
   void display(int currency = 0);
   void displaySmall(int, int, int, int);
   G_CANDLE *candles;
@@ -41,7 +46,7 @@ public:
   void reset();
 
 private:
-  Adafruit_ST7735 *tft;
+  Adafruit_GFX *tft;
 };
 
 #endif

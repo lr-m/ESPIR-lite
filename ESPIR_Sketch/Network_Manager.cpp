@@ -14,8 +14,8 @@ int dBmtoPercentage(int dBm) {
   return quality;
 }
 
-Network_Manager::Network_Manager(Adafruit_ST7735* screen, COIN** coins, Keyboard* keyboard)
-  : screen(screen), coins(coins), keyboard(keyboard) {
+Network_Manager::Network_Manager(Adafruit_GFX* tft, COIN** coins, Keyboard* keyboard)
+  : tft(tft), coins(coins), keyboard(keyboard) {
   keyboard->setLengthLimit(INPUT_LENGTH_LIMIT);
 }
 
@@ -70,10 +70,10 @@ void Network_Manager::scanForNetworks() {
 
 void Network_Manager::display() {
   if (state == Network_State::SELECTING_AP) {
-    getScreen()->fillScreen(BLACK);
-    getScreen()->setCursor(2, 2);
-    getScreen()->setTextColor(GRAY);
-    getScreen()->print("Select your network:");
+    tft->fillScreen(BLACK);
+    tft->setCursor(2, 2);
+    tft->setTextColor(GRAY);
+    tft->print("Select your network:");
     for (int i = ap_display_list_base; i < ap_display_list_base + AP_LIST_COUNT; i++) {
       if (i >= network_count) {
         break;
@@ -86,7 +86,7 @@ void Network_Manager::display() {
       }
     }
   } else if (state == Network_State::ENTERING_PASSWORD) {
-    getScreen()->fillScreen(BLACK);
+    tft->fillScreen(BLACK);
     keyboard->displayPrompt("Enter password:");
     keyboard->display();
   }
@@ -95,37 +95,37 @@ void Network_Manager::display() {
 void Network_Manager::displayAP(int index) {
   // display strength indicator
   if (networks[index].strength > 66) {
-    getScreen()->drawLine(2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 2, GREEN);
+    tft->drawLine(2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 2, GREEN);
   }
   if (networks[index].strength > 33) {
-    getScreen()->drawLine(6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 5, ORANGE);
+    tft->drawLine(6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 5, ORANGE);
   }
   if (networks[index].strength > 0) {
-    getScreen()->drawLine(10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 8, RED);
+    tft->drawLine(10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 8, RED);
   }
 
   // display SSID
-  getScreen()->setCursor(20, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 4);
-  getScreen()->setTextColor(DARK_GREY);
-  getScreen()->print(networks[index].SSID);
+  tft->setCursor(20, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 4);
+  tft->setTextColor(DARK_GREY);
+  tft->print(networks[index].SSID);
 }
 
 void Network_Manager::displayAPSelected(int index) {
   // display strength indicator
   if (networks[index].strength > 66) {
-    getScreen()->drawLine(2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 2, GREEN);
+    tft->drawLine(2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 2, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 2, GREEN);
   }
   if (networks[index].strength > 33) {
-    getScreen()->drawLine(6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 5, ORANGE);
+    tft->drawLine(6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 6, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 5, ORANGE);
   }
   if (networks[index].strength > 0) {
-    getScreen()->drawLine(10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 8, RED);
+    tft->drawLine(10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * ((index + 1) - ap_display_list_base), 10, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 8, RED);
   }
 
   // display SSID
-  getScreen()->setCursor(20, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 4);
-  getScreen()->setTextColor(WHITE);
-  getScreen()->print(networks[index].SSID);
+  tft->setCursor(20, AP_LABEL_HEIGHT + AP_ITEM_HEIGHT * (index - ap_display_list_base) + 4);
+  tft->setTextColor(WHITE);
+  tft->print(networks[index].SSID);
 }
 
 
@@ -279,26 +279,26 @@ void Network_Manager::loadAndConnect() {
   char password[SSID_LENGTH];
 
   if (loadSSID(ssid) && loadPassword(password)) {
-    screen->fillScreen(BLACK);
-    screen->setTextSize(1);
-    screen->setTextColor(WHITE);
-    screen->setCursor(0, 10);
-    screen->println(" SSID: ");
-    screen->setTextColor(LIGHT_RED);
-    screen->print(" ");
-    screen->println(ssid);
-    screen->setTextColor(WHITE);
-    screen->println("\n Password: ");
-    screen->setTextColor(LIGHT_RED);
-    screen->print(" ");
-    screen->println(password);
-    screen->setTextColor(WHITE);
+    tft->fillScreen(BLACK);
+    tft->setTextSize(1);
+    tft->setTextColor(WHITE);
+    tft->setCursor(0, 10);
+    tft->println(" SSID: ");
+    tft->setTextColor(LIGHT_RED);
+    tft->print(" ");
+    tft->println(ssid);
+    tft->setTextColor(WHITE);
+    tft->println("\n Password: ");
+    tft->setTextColor(LIGHT_RED);
+    tft->print(" ");
+    tft->println(password);
+    tft->setTextColor(WHITE);
     WiFi.begin(ssid, password);
-    screen->print("\n ");
+    tft->print("\n ");
 
     int i = 0;
     int maxIterations = 60;
-    int segmentWidth = (screen->width() - 10) / maxIterations;
+    int segmentWidth = (tft->width() - 10) / maxIterations;
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(250);
@@ -311,12 +311,12 @@ void Network_Manager::loadAndConnect() {
         int color = (i < 20) ? WHITE : RED;
 
         // Draw the rectangle on the screen
-        screen->fillRect(xPos, 58, segmentWidth, 8, color);
+        tft->fillRect(xPos, 58, segmentWidth, 8, color);
 
         // If the maximum number of iterations is reached, reset and scan for networks
         if (i == maxIterations) {
             keyboard->reset();
-            screen->fillScreen(BLACK);
+            tft->fillScreen(BLACK);
             scanForNetworks();
             return;
         }
@@ -327,15 +327,15 @@ void Network_Manager::loadAndConnect() {
     WiFi.setAutoReconnect(true);
     WiFi.persistent(true);
 
-    screen->print("\n ");
-    screen->setTextColor(LIGHT_GREEN);
-    screen->println("\n Connected");
-    screen->setTextColor(WHITE);
-    screen->println("\n IP address: ");
-    screen->print(" ");
-    screen->println(WiFi.localIP());
+    tft->print("\n ");
+    tft->setTextColor(LIGHT_GREEN);
+    tft->println("\n Connected");
+    tft->setTextColor(WHITE);
+    tft->println("\n IP address: ");
+    tft->print(" ");
+    tft->println(WiFi.localIP());
     delay(5000);
-    screen->fillScreen(BLACK);
+    // tft->fillScreen(BLACK);
   } else {
     scanForNetworks();
   }

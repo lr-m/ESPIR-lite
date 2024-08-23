@@ -1,7 +1,7 @@
 #include <ST7735_Menu.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
 
+#include "TFT_abstraction_layer.h"
 #include "Coin_Select_Page.h"
 #include "Portfolio_Editor_Page.h"
 #include "Coin.h"
@@ -15,7 +15,7 @@
 
 class Crypto_Ticker_Menu {
 public:
-  Crypto_Ticker_Menu(Adafruit_ST7735 *screen, COIN **coins, Portfolio *portfolio, Network_Manager *network_manager);
+  Crypto_Ticker_Menu(Adafruit_GFX *tft, COIN **coins, Portfolio *portfolio, Network_Manager *network_manager);
   void display() {
     menu->display();
   }
@@ -85,7 +85,7 @@ private:
   bool selected_coins[20] = { 0 };
   Menu *menu;
   Network_Manager *network_manager;
-  Adafruit_ST7735 *screen;
+  Adafruit_GFX *tft;
 
   Submenu *customize_submenu;
   Coin_Select_Page *coin_select_page;

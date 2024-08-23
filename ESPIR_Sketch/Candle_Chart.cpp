@@ -6,7 +6,7 @@
 #include "Candle_Chart.h"
 
 // Constructor for Candle Chart
-Candle_Chart::Candle_Chart(Adafruit_ST7735 *display, uint16_t candle_count,
+Candle_Chart::Candle_Chart(Adafruit_GFX *display,
                            int top_y, int bot_y, int labels_val) {
   tft = display;
 
@@ -21,9 +21,16 @@ Candle_Chart::Candle_Chart(Adafruit_ST7735 *display, uint16_t candle_count,
   current_candles = 1;
   labels = labels_val;
   candles_init = false;
-  count = candle_count;
 
-  candles = (G_CANDLE *)malloc(sizeof(G_CANDLE) * candle_count);
+  if (display->width() == 128){
+    count = CANDLE_COUNT_128;
+  } else if (display->width() == 160){
+    count = CANDLE_COUNT_160;
+  } else if (display->width() == 320){
+    count = CANDLE_COUNT_320;
+  }
+  
+  candles = (G_CANDLE *)malloc(sizeof(G_CANDLE) * count);
 
   initialiseCandles();
 }
@@ -161,14 +168,34 @@ void Candle_Chart::display(int currency) {
 
     color = (candles[i].opening > candles[i].closing) ? RED : LIGHT_GREEN;
 
-    tft->drawLine(bar_x, high_y, bar_x + 2, high_y, color);
-    tft->drawLine(bar_x + 1, high_y, bar_x + 1, min(opening_y, closing_y),
-                  color);
-    tft->fillRect(bar_x, min(opening_y, closing_y), CANDLE_WIDTH,
+    if (tft->width() == 128){
+      tft->drawLine(bar_x, high_y, bar_x + 2, high_y, color);
+      tft->drawLine(bar_x + 1, high_y, bar_x + 1, min(opening_y, closing_y),
+                    color);
+      tft->fillRect(bar_x, min(opening_y, closing_y), CANDLE_WIDTH_128,
                   max(opening_y, closing_y) - min(opening_y, closing_y), color);
-    tft->drawLine(bar_x + 1, low_y, bar_x + 1, max(opening_y, closing_y),
+      tft->drawLine(bar_x + 1, low_y, bar_x + 1, max(opening_y, closing_y),
                   color);
-    tft->drawLine(bar_x, low_y, bar_x + 2, low_y, color);
+      tft->drawLine(bar_x, low_y, bar_x + 2, low_y, color);
+    } else if (tft->width() == 160){
+      tft->drawLine(bar_x, high_y, bar_x + 2, high_y, color);
+      tft->drawLine(bar_x + 1, high_y, bar_x + 1, min(opening_y, closing_y),
+                    color);
+      tft->fillRect(bar_x, min(opening_y, closing_y), CANDLE_WIDTH_160,
+                  max(opening_y, closing_y) - min(opening_y, closing_y), color);
+      tft->drawLine(bar_x + 1, low_y, bar_x + 1, max(opening_y, closing_y),
+                  color);
+      tft->drawLine(bar_x, low_y, bar_x + 2, low_y, color);
+    } else if (tft->width() == 320){
+      tft->drawLine(bar_x, high_y, bar_x + 4, high_y, color);
+      tft->drawLine(bar_x + 2, high_y, bar_x + 2, min(opening_y, closing_y),
+                    color);
+      tft->fillRect(bar_x, min(opening_y, closing_y), CANDLE_WIDTH_320,
+                  max(opening_y, closing_y) - min(opening_y, closing_y), color);
+      tft->drawLine(bar_x + 2, low_y, bar_x + 2, max(opening_y, closing_y),
+                  color);
+      tft->drawLine(bar_x, low_y, bar_x + 4, low_y, color);
+    }
   }
 }
 
