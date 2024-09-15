@@ -74,7 +74,7 @@ void Network_Manager::display() {
     tft->setCursor(2, 2);
     tft->setTextColor(GRAY);
     tft->print("Select your network:");
-    for (int i = ap_display_list_base; i < ap_display_list_base + AP_LIST_COUNT; i++) {
+    for (int i = ap_display_list_base; i < ap_display_list_base + (int) ((tft->height() - AP_LABEL_HEIGHT) / AP_ITEM_HEIGHT); i++) {
       if (i >= network_count) {
         break;
       }
@@ -229,7 +229,7 @@ void Network_Manager::back() {
 void Network_Manager::moveUp() {
   if (getState() == Network_State::SELECTING_AP) {
     displayAP(selected_id);
-    selected_id = (selected_id == 0) ? min((uint16_t) AP_LIST_COUNT, network_count) - 1 : selected_id - 1;
+    selected_id = (selected_id == 0) ? min((uint16_t) ((tft->height() - AP_LABEL_HEIGHT) / AP_ITEM_HEIGHT), network_count) - 1 : selected_id - 1;
     displayAPSelected(selected_id);
   } else if (getState() == Network_State::ENTERING_PASSWORD) {
     keyboard->moveUp();
@@ -239,7 +239,7 @@ void Network_Manager::moveUp() {
 void Network_Manager::moveDown() {
   if (getState() == Network_State::SELECTING_AP) {
     displayAP(selected_id);
-    selected_id = (selected_id == min((uint16_t) AP_LIST_COUNT, network_count) - 1) ? 0 : selected_id + 1;
+    selected_id = (selected_id == min((uint16_t) ((tft->height() - AP_LABEL_HEIGHT) / AP_ITEM_HEIGHT), network_count) - 1) ? 0 : selected_id + 1;
     displayAPSelected(selected_id);
   } else if (getState() == Network_State::ENTERING_PASSWORD) {
     keyboard->moveDown();

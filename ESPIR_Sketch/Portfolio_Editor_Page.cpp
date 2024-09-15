@@ -120,6 +120,13 @@ void Portfolio_Editor_Page::displayOnIndex(int index, bool selected) {
     background_x_padding = BACKGROUND_X_PADDING_160;
     label_height = LABEL_HEIGHT_160;
     getScreen()->setTextSize(1);
+  } else if (getScreen()->width() == 240){
+    option_sep = OPTION_SEP_320;
+    option_height = OPTION_HEIGHT_320;
+    background_height = BACKGROUND_HEIGHT_320;
+    background_x_padding = BACKGROUND_X_PADDING_320;
+    label_height = LABEL_HEIGHT_320;
+    getScreen()->setTextSize(2);
   } else if (getScreen()->width() == 320){
     option_sep = OPTION_SEP_320;
     option_height = OPTION_HEIGHT_320;
@@ -174,6 +181,13 @@ void Portfolio_Editor_Page::pageDisplay() {
     background_x_padding = BACKGROUND_X_PADDING_160;
     label_height = LABEL_HEIGHT_160;
     getScreen()->setTextSize(1);
+  } else if (getScreen()->width() == 240){
+    option_sep = OPTION_SEP_320;
+    option_height = OPTION_HEIGHT_320;
+    background_height = BACKGROUND_HEIGHT_320;
+    background_x_padding = BACKGROUND_X_PADDING_320;
+    label_height = LABEL_HEIGHT_320;
+    getScreen()->setTextSize(2);
   } else if (getScreen()->width() == 320){
     option_sep = OPTION_SEP_320;
     option_height = OPTION_HEIGHT_320;
@@ -304,7 +318,13 @@ void Price_Selector::clear(Adafruit_GFX *display) {
   if (display->width() == 128){
     display->fillRect(0, display->height() - 40, display->width(), 40, BLACK);
   } else if (display->width() == 160) {
-    display->fillRect(0, display->height() - 40, display->width(), 40, BLACK);
+    if (display->height() == 80){
+      display->fillRect(0, display->height() - 32, display->width(), 32, BLACK);
+    } else {
+      display->fillRect(0, display->height() - 40, display->width(), 40, BLACK);
+    }
+  } else if (display->width() == 240) {
+    display->fillRect(0, display->height() - 60, display->width(), 60, BLACK);
   } else if (display->width() == 320) {
     display->fillRect(0, display->height() - 60, display->width(), 60, BLACK);
   }
@@ -323,14 +343,21 @@ void Price_Selector::reset() {
 
 // Redraws the value selected by the user
 void Price_Selector::display(Adafruit_GFX *display) {
-  display->fillRect(0, 100, display->width(), 15, BLACK);
+  display->fillScreen(BLACK);
 
   if (display->width() == 128){
     display->setTextSize(1);
     display->setCursor(2, display->height() - 40);
   } else if (display->width() == 160) {
     display->setTextSize(1);
-    display->setCursor(2, display->height() - 40);
+    if (display->height() == 80){
+      display->setCursor(2, display->height() - 30);
+    } else {
+      display->setCursor(2, display->height() - 40);
+    }
+  } else if (display->width() == 240) {
+    display->setTextSize(2);
+    display->setCursor(2, display->height() - 60);
   } else if (display->width() == 320) {
     display->setTextSize(2);
     display->setCursor(2, display->height() - 60);
@@ -346,7 +373,14 @@ void Price_Selector::display(Adafruit_GFX *display) {
     display->setCursor(2, display->height() - 20);
   } else if (display->width() == 160) {
     display->setTextSize(2);
-    display->setCursor(2, display->height() - 20);
+    if (display->height() == 80){
+      display->setCursor(2, display->height() - 17);
+    } else {
+      display->setCursor(2, display->height() - 20);
+    }
+  } else if (display->width() == 240) {
+    display->setTextSize(4);
+    display->setCursor(2, display->height() - 35);
   } else if (display->width() == 320) {
     display->setTextSize(4);
     display->setCursor(2, display->height() - 35);
@@ -365,7 +399,13 @@ void Price_Selector::refresh(Adafruit_GFX *display) {
   if (display->width() == 128){
     display->fillRect(0, display->height() - 24, display->width(), 24, BLACK);
   } else if (display->width() == 160) {
-    display->fillRect(0, display->height() - 28, display->width(), 28, BLACK);
+    if (display->height() == 80){
+      display->fillRect(0, display->height() - 18, display->width(), 18, BLACK);
+    } else {
+      display->fillRect(0, display->height() - 28, display->width(), 28, BLACK);
+    }
+  } else if (display->width() == 240) {
+    display->fillRect(0, display->height() - 35, display->width(), 35, BLACK);
   } else if (display->width() == 320) {
     display->fillRect(0, display->height() - 35, display->width(), 35, BLACK);
   }
@@ -379,6 +419,9 @@ void Price_Selector::refresh(Adafruit_GFX *display) {
   } else if (display->width() == 160) {
     display->setTextSize(2);
     display->setCursor(2, display->height() - 20);
+  } else if (display->width() == 240) {
+    display->setTextSize(4);
+    display->setCursor(2, display->height() - 35);
   } else if (display->width() == 320) {
     display->setTextSize(4);
     display->setCursor(2, display->height() - 35);

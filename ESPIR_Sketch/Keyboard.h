@@ -10,12 +10,13 @@
 #define NORMAL_KEY_WIDTH 11
 #define SPECIAL_KEY_WIDTH 10
 #define EDGE_BORDER 4
+#define VERTICAL_KEY_SEP 2
 
 #define MAX_INPUT_LENGTH 31
 
 #define SCHEME_BG 0x0000
-#define SCHEME_MAIN 0xCD63  // 0xD800 // (Red) //0x2CB2 (Blue)
-#define SCHEME_SECONDARY 0xF6CD
+#define SCHEME_MAIN 0xf8c3  // 0xD800 // (Red) //0x2CB2 (Blue)
+#define SCHEME_SECONDARY 0x7e0
 #define SCHEME_TEXT_LIGHT 0xFFFF
 #define SCHEME_TEXT_DARK 0x0000
 

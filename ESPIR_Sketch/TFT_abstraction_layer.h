@@ -10,7 +10,9 @@
 // Enum for the display types
 enum TFT_Type {
     ST7735_SPI_128_128,
+    ST7735_SPI_160_80,
     ST7735_SPI_160_128,
+    ST7789_SPI_240_240,
     ST7789_SPI_320_240,
     ST7789_SPI_320_240_INVERT
 };

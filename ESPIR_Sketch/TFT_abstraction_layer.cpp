@@ -6,8 +6,14 @@ TFT::TFT(TFT_Type displayType, int8_t cs, int8_t dc, int8_t sda, int8_t scl, int
         case ST7735_SPI_128_128:
             display = new Adafruit_ST7735(cs, dc, res);
             break;
+        case ST7735_SPI_160_80:
+            display = new Adafruit_ST7735(cs, dc, res);
+            break;
         case ST7735_SPI_160_128:
             display = new Adafruit_ST7735(cs, dc, res);
+            break;
+        case ST7789_SPI_240_240:
+            display = new Adafruit_ST7789(cs, dc, res);
             break;
         case ST7789_SPI_320_240:
             display = new Adafruit_ST7789(cs, dc, res);
@@ -34,9 +40,21 @@ void TFT::init(){
             display->setRotation(1);
             display->fillScreen(BLACK);
             break;
+        case ST7735_SPI_160_80:
+            static_cast<Adafruit_ST7735*>(display)->initR(INITR_MINI160x80_GREENTAB);
+            display->setRotation(1);
+            display->invertDisplay(1);
+            display->fillScreen(BLACK);
+            break;
         case ST7735_SPI_160_128:
             static_cast<Adafruit_ST7735*>(display)->initR(INITR_BLACKTAB);
             display->setRotation(1);
+            display->fillScreen(BLACK);
+            break;
+        case ST7789_SPI_240_240:
+            static_cast<Adafruit_ST7789*>(display)->init(240, 240);  // Or use initR if applicable
+            display->setRotation(1);
+            display->invertDisplay(1);
             display->fillScreen(BLACK);
             break;
         case ST7789_SPI_320_240:

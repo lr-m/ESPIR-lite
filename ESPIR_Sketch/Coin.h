@@ -39,6 +39,22 @@
 #define CHANGE_START_Y_160 50
 #define PRICE_START_Y_160 28
 
+// Positional constants for 160 width and 80 height
+#define CHANGE_START_Y_160_80 43
+#define PRICE_START_Y_160_80 25
+
+// Positional constants for 240 width
+#define NO_BM_NAME_START_X_240 12
+#define NO_BM_PRICE_START_X_240 24
+#define NO_BM_CHANGE_START_X_240 28
+
+#define BM_NAME_START_X_240 40
+#define BM_PRICE_START_X_240 24
+#define BM_CHANGE_START_X_240 28
+
+#define CHANGE_START_Y_240 100
+#define PRICE_START_Y_240 60
+
 // Positional constants for 320 width
 #define NO_BM_NAME_START_X_320 54
 #define NO_BM_PRICE_START_X_320 64
@@ -50,11 +66,6 @@
 
 #define CHANGE_START_Y_320 94
 #define PRICE_START_Y_320 56
-
-// candle counts
-#define CANDLE_COUNT_128 20
-#define CANDLE_COUNT_160 26
-#define CANDLE_COUNT_320 26
 
 // For storing coins
 class COIN {

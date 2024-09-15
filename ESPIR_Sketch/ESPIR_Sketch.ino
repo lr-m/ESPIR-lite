@@ -43,8 +43,8 @@ extern unsigned char DAI_logo[];
 extern unsigned char epd_bitmap_logo_red[];
 extern unsigned char epd_bitmap_logo_green[];
 
-// For ST7735-based displays, we will use this call (ST7789_SPI_320_240_INVERT)
-TFT tft = TFT(ST7789_SPI_320_240, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
+// init display here (modify to match your display)
+TFT tft = TFT(ST7789_SPI_240_240, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
 
 // IR remote
 decode_results results;
@@ -157,10 +157,10 @@ void setup(void) {
   // load wifi creds and connect to network (or enter setup)
   network_manager->loadAndConnect();
 
-  tft.getDisplay()->setTextColor(LIGHT_GREEN);
-  tft.getDisplay()->println("\n Requesting info...");
-
   if ((state == State::NETWORK) && network_manager->isConnected()) {
+    tft.getDisplay()->setTextColor(LIGHT_GREEN);
+    tft.getDisplay()->println("\n Requesting info...");
+
     state == State::COIN;
     refreshAllCoins();
     addCoinPricesToCandles();
@@ -175,8 +175,16 @@ void drawIntroAnimation() {
     drawBitmap(0, 20, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
     drawBitmap(0, 20, epd_bitmap_logo_red, 128, 56, RED, 1);
   } else if (tft.getDisplay()->width() == 160){
-    drawBitmap(16, 20, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
-    drawBitmap(16, 20, epd_bitmap_logo_red, 128, 56, RED, 1);
+    if (tft.getDisplay()->height() == 80){
+      drawBitmap(16, 2, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
+      drawBitmap(16, 2, epd_bitmap_logo_red, 128, 56, RED, 1);
+    } else {
+      drawBitmap(16, 20, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
+      drawBitmap(16, 20, epd_bitmap_logo_red, 128, 56, RED, 1);
+    }
+  } else if (tft.getDisplay()->width() == 240){
+    drawBitmap(56, tft.getDisplay()->height()/2 - 100, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 1);
+    drawBitmap(56, tft.getDisplay()->height()/2 - 100, epd_bitmap_logo_red, 128, 56, RED, 1);
   } else if (tft.getDisplay()->width() == 320){
     drawBitmap(32, tft.getDisplay()->height()/2 - 100, epd_bitmap_logo_green, 128, 56, LIGHT_GREEN, 2);
     drawBitmap(32, tft.getDisplay()->height()/2 - 100, epd_bitmap_logo_red, 128, 56, RED, 2);
@@ -189,7 +197,7 @@ void drawIntroAnimation() {
 
   tft.getDisplay()->setTextSize(1);
   tft.getDisplay()->getTextBounds("Powered by CoinGecko", 0, 0, &x, &y, &width, &height);
-  tft.getDisplay()->setCursor(tft.getDisplay()->width()/2 - width/2, tft.getDisplay()->height() - 20);
+  tft.getDisplay()->setCursor(tft.getDisplay()->width()/2 - width/2, tft.getDisplay()->height() - 18);
   tft.getDisplay()->write("Powered by CoinGecko");
 
   delay(2500);

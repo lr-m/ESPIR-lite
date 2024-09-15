@@ -12,12 +12,21 @@ Portfolio::Portfolio(Adafruit_GFX *tft,
     uint8_t candle_offset = 0;
     if (tft->width() == 128){
       candle_offset = CANDLE_OFFSET_Y_128;
+      coin_page_limit = PAGE_LIMIT_128;
     } else if (tft->width() == 160){
       candle_offset = CANDLE_OFFSET_Y_160;
+      coin_page_limit = PAGE_LIMIT_160;
+      if (tft->height() == 80){
+        coin_page_limit = PAGE_LIMIT_160_80;
+      }
+    } else if (tft->width() == 240){
+      candle_offset = CANDLE_OFFSET_Y_320;
+      coin_page_limit = PAGE_LIMIT_320;
     } else if (tft->width() == 320){
       candle_offset = CANDLE_OFFSET_Y_320;
+      coin_page_limit = PAGE_LIMIT_320;
     }
-  candle_chart = new Candle_Chart(tft, candle_offset, tft->height() - 12, 1);
+    candle_chart = new Candle_Chart(tft, candle_offset, tft->height() - 12, 1);
 }
 
 // Draw the current value of the portfolio
@@ -30,7 +39,10 @@ void Portfolio::drawValue(double *total_value, int currency) {
   } else if (tft->width() == 160) {
     tft->setCursor(3, 4);
     value_drawer->drawPrice(12, *total_value, 2, 2, currency);
-  } else if (tft->width() == 320) {
+  } else if (tft->width() == 240) {
+    tft->setCursor(0, 2);
+    value_drawer->drawPrice(9, *total_value, 2, 4, currency);
+  }else if (tft->width() == 320) {
     tft->setCursor(3, 2);
     value_drawer->drawPrice(12, *total_value, 2, 4, currency);
   }
@@ -80,7 +92,11 @@ void Portfolio::drawPropBar(double *total_value) {
         tft->fillRect((current_total * (tft->width() / *total_value)), BAR_Y_160,
                     1 + (coin_total * (tft->width() / *total_value)), BAR_THICKNESS_160,
                     sorted_coins[i]->portfolio_colour);
-      } else if (tft->width() == 320){
+      } else if (tft->width() == 240){
+        tft->fillRect((current_total * (tft->width() / *total_value)), BAR_Y_320,
+                    1 + (coin_total * (tft->width() / *total_value)), BAR_THICKNESS_320,
+                    sorted_coins[i]->portfolio_colour);
+      }else if (tft->width() == 320){
         tft->fillRect((current_total * (tft->width() / *total_value)), BAR_Y_320,
                     1 + (coin_total * (tft->width() / *total_value)), BAR_THICKNESS_320,
                     sorted_coins[i]->portfolio_colour);
@@ -150,6 +166,16 @@ void Portfolio::drawBarSummary(double *total_value, int currency) {
     value_text_x_offset = VALUE_TEXT_X_OFFSET_160;
     performance_text_x_offset = PERFORMANCE_TEXT_X_OFFSET_160;
     rect_y_offset = -1;
+  } else if (tft->width() == 240) {
+    text_size = TEXT_SIZE_320;
+    text_x_offset = TEXT_X_OFFSET_320;
+    text_y_offset = TEXT_Y_OFFSET_320;
+    text_y_spacing = TEXT_Y_SPACING_320;
+    color_rect_x = COLOR_RECT_X_320;
+    color_rect_width = COLOR_RECT_WIDTH_320;
+    value_text_x_offset = VALUE_TEXT_X_OFFSET_240;
+    performance_text_x_offset = PERFORMANCE_TEXT_X_OFFSET_240;
+    rect_y_offset = -3;
   } else if (tft->width() == 320) {
     text_size = TEXT_SIZE_320;
     text_x_offset = TEXT_X_OFFSET_320;
@@ -162,7 +188,7 @@ void Portfolio::drawBarSummary(double *total_value, int currency) {
     rect_y_offset = -3;
   }
 
-  for (int i = page_base; i < page_base + COIN_PAGE_LIMIT; i++) {
+  for (int i = page_base; i < page_base + coin_page_limit; i++) {
     if (i >= COIN_COUNT) {
       break;
     }
@@ -222,10 +248,32 @@ void Portfolio::drawPieSummary(double *total_value) {
     color_rect_width = COLOR_RECT_WIDTH_160;
     percentage_text_x_offset = PERCENTAGE_TEXT_X_OFFSET_160;
     rect_y_offset = -1;
-    pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_160;
-    pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_160;
-    pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_160;
-    pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_160;
+
+    if (tft->height() == 80){
+      pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_160_80;
+      pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_160_80;
+      pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_160_80;
+      pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_160_80;
+    } else {
+      pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_160;
+      pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_160;
+      pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_160;
+      pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_160;
+    }
+    
+  } else if (tft->width() == 240) {
+    text_size = TEXT_SIZE_320;
+    text_x_offset = TEXT_X_OFFSET_320;
+    text_y_offset = TEXT_Y_OFFSET_320;
+    text_y_spacing = TEXT_Y_SPACING_320;
+    color_rect_x = COLOR_RECT_X_320;
+    color_rect_width = COLOR_RECT_WIDTH_320;
+    percentage_text_x_offset = PERCENTAGE_TEXT_X_OFFSET_240;
+    rect_y_offset = -1;
+    pie_chart_center_x = PIE_CHART_CENTER_X_OFFSET_240;
+    pie_chart_center_y = PIE_CHART_CENTER_Y_OFFSET_240;
+    pie_chart_radius_outer = PIE_CHART_RADIUS_OUTER_240;
+    pie_chart_radius_inner = PIE_CHART_RADIUS_INNER_240;
   } else if (tft->width() == 320) {
     text_size = TEXT_SIZE_320;
     text_x_offset = TEXT_X_OFFSET_320;
@@ -254,7 +302,7 @@ void Portfolio::drawPieSummary(double *total_value) {
 
         if (sorted_coins[i]->amount > 0) {
             // only draw if in current range
-            if (i + page_base < page_base + COIN_PAGE_LIMIT){
+            if (i + page_base < page_base + coin_page_limit){
               double drawing_coin_total = sorted_coins[i + page_base]->current_price * sorted_coins[i + page_base]->amount;
 
               // Set text properties and draw coin details
@@ -328,7 +376,7 @@ void Portfolio::drawPieSummary(double *total_value) {
 
 void Portfolio::press(int currency) {
   // dont go to next page if there isnt one
-  if (getElementCount() <= COIN_PAGE_LIMIT) {
+  if (getElementCount() <= coin_page_limit) {
     return;
   }
 
@@ -338,10 +386,10 @@ void Portfolio::press(int currency) {
   }
 
   // go to the next page and display
-  if (page_base + COIN_PAGE_LIMIT >= getElementCount()) {
+  if (page_base + coin_page_limit >= getElementCount()) {
     page_base = 0;
   } else {
-    page_base += COIN_PAGE_LIMIT;
+    page_base += coin_page_limit;
   }
   display(currency);
 }
@@ -383,7 +431,7 @@ void Portfolio::display(int currency) {
   }
 
   // user could have removed elements while on 2nd page, check for this
-  if (getElementCount() <= COIN_PAGE_LIMIT) {
+  if (getElementCount() <= coin_page_limit) {
     page_base = 0;
   }
 

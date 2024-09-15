@@ -14,6 +14,7 @@
 
 #define CANDLE_COUNT_128 20
 #define CANDLE_COUNT_160 26
+#define CANDLE_COUNT_240 20
 #define CANDLE_COUNT_320 26
 
 #ifndef Candle_Chart_h

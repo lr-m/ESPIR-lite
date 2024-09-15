@@ -66,8 +66,14 @@ void COIN::freeCandles() {
 void COIN::initCandles() {
   if (!candles_init) {
     candles_init = true;
-    candles = new Candle_Chart(tft, tft->height() / 2,
+    // special case for 160x80 display
+    if (tft->width() == 160 && tft->height() == 80){
+      candles = new Candle_Chart(tft, tft->height() - 27,
+                              tft->height() - 3, 0);
+    } else {
+      candles = new Candle_Chart(tft, tft->height() / 2,
                               tft->height() - 6, 0);
+    }
   }
 }
 
@@ -81,7 +87,15 @@ void COIN::draw(int currency, bool bitmap_enabled) {
       tft->fillRoundRect(0, 0, 42, 42, 5, circle_colour);
       drawBitmap(1, 1, bitmap, 40, 40, bm_colour);
     } else if (tft->width() == 160) {
-      tft->fillCircle(12, 12, 44, circle_colour);
+      if (tft->height() == 80){
+        tft->fillCircle(10, 10, 40, circle_colour);
+        drawBitmap(2, 2, bitmap, 40, 40, bm_colour);
+      } else {
+        tft->fillCircle(12, 12, 44, circle_colour);
+        drawBitmap(4, 4, bitmap, 40, 40, bm_colour);
+      }
+    } else if (tft->width() == 240) {
+      tft->fillCircle(10, 10, 44, circle_colour);
       drawBitmap(4, 4, bitmap, 40, 40, bm_colour);
     } else if (tft->width() == 320) {
       tft->fillCircle(20, 20, 88, circle_colour);
@@ -125,6 +139,17 @@ void COIN::drawName(bool bitmap_enabled) {
         NO_BM_NAME_START_X_160 + (((tft->width() - 2 * NO_BM_NAME_START_X_160) / 8) * (8 - len)) / 2,
         6);
     }
+  } else if (tft->width() == 240){
+    tft->setTextSize(5);
+    if (bitmap_enabled) {
+      tft->setCursor(
+        BM_NAME_START_X_240 + (((tft->width() - BM_NAME_START_X_240) / 8) * (8 - len)) / 2,
+        6);
+    } else {
+      tft->setCursor(
+        NO_BM_NAME_START_X_240 + (((tft->width() - 2 * NO_BM_NAME_START_X_240) / 8) * (8 - len)) / 2,
+        6);
+    }
   } else if (tft->width() == 320){
     tft->setTextSize(5);
     if (bitmap_enabled) {
@@ -157,13 +182,29 @@ void COIN::drawPrice(int currency, bool bitmap_enabled){
 
     value_drawer->drawPrice(6, current_price, 6, 2, currency);
   } else if (tft->width() == 160) {
-    if (bitmap_enabled) {
-      tft->setCursor(BM_PRICE_START_X_160, PRICE_START_Y_160);
+    if (tft->height() == 80){
+      if (bitmap_enabled) {
+        tft->setCursor(BM_PRICE_START_X_160, PRICE_START_Y_160_80);
+      } else {
+        tft->setCursor(NO_BM_PRICE_START_X_160, PRICE_START_Y_160_80);
+      }
     } else {
-      tft->setCursor(NO_BM_PRICE_START_X_160, PRICE_START_Y_160);
+      if (bitmap_enabled) {
+        tft->setCursor(BM_PRICE_START_X_160, PRICE_START_Y_160);
+      } else {
+        tft->setCursor(NO_BM_PRICE_START_X_160, PRICE_START_Y_160);
+      }
     }
 
     value_drawer->drawPrice(7, current_price, 7, 2, currency);
+  } else if (tft->width() == 240){
+    if (bitmap_enabled) {
+      tft->setCursor(BM_PRICE_START_X_240, PRICE_START_Y_240);
+    } else {
+      tft->setCursor(NO_BM_PRICE_START_X_240, PRICE_START_Y_240);
+    }
+
+    value_drawer->drawPrice(7, current_price, 7, 4, currency);
   } else if (tft->width() == 320){
     if (bitmap_enabled) {
       tft->setCursor(BM_PRICE_START_X_320, PRICE_START_Y_320);
@@ -190,16 +231,35 @@ void COIN::drawPercentageChange(bool bitmap_enabled) {
 
     value_drawer->drawPercentageChange(4, current_change, 2, 1);
   } else if (tft->width() == 160) {
-    if (bitmap_enabled) {
-      tft->setCursor(BM_CHANGE_START_X_160, CHANGE_START_Y_160);
+    if (tft->height() == 80){
+      if (bitmap_enabled) {
+        tft->setCursor(BM_CHANGE_START_X_160, CHANGE_START_Y_160_80);
+      } else {
+        tft->setCursor(NO_BM_CHANGE_START_X_160, CHANGE_START_Y_160_80);
+      }
     } else {
-      tft->setCursor(NO_BM_CHANGE_START_X_160, CHANGE_START_Y_160);
+      if (bitmap_enabled) {
+        tft->setCursor(BM_CHANGE_START_X_160, CHANGE_START_Y_160);
+      } else {
+        tft->setCursor(NO_BM_CHANGE_START_X_160, CHANGE_START_Y_160);
+      }
     }
 
     tft->setTextSize(1);
     tft->print("24 Hour: ");
 
     value_drawer->drawPercentageChange(4, current_change, 2, 1);
+  } else if (tft->width() == 240){
+    if (bitmap_enabled) {
+      tft->setCursor(BM_CHANGE_START_X_240, CHANGE_START_Y_240);
+    } else {
+      tft->setCursor(NO_BM_CHANGE_START_X_240, CHANGE_START_Y_240);
+    }
+
+    tft->setTextSize(2);
+    tft->print("24 Hour: ");
+
+    value_drawer->drawPercentageChange(4, current_change, 2, 2);
   } else if (tft->width() == 320){
     if (bitmap_enabled) {
       tft->setCursor(BM_CHANGE_START_X_320, CHANGE_START_Y_320);

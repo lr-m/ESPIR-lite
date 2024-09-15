@@ -16,9 +16,7 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_GFX* tft, COIN** coins, Portfoli
   coin_select_page = new Coin_Select_Page("Select Coins", coins, selected_coins, 20);
   portfolio_editor_page = new Portfolio_Editor_Page("Edit portfolio", coins, 20);
   currency_selector = new Selector("Currency:", currency_options, currency_options_index, 3, "customize:currency", 0);
-  memory_info_button = new Button("Memory Info", [=] {
-    displayMemoryInfo();
-  });
+  
   customize_submenu->addElement(coin_select_page);
   customize_submenu->addElement(portfolio_editor_page);
   customize_submenu->addElement(currency_selector);
@@ -61,10 +59,14 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_GFX* tft, COIN** coins, Portfoli
   clear_wifi_credentials = new Button("Clear WiFi Info", [=] {
     network_manager->clearCredentials();
   });
+  memory_info_button = new Button("Memory Info", [=] {
+    displayMemoryInfo();
+  });
 
   // add elements
   storage_submenu->addElement(clear_settings);
   storage_submenu->addElement(clear_wifi_credentials);
+  storage_submenu->addElement(memory_info_button);
 
   // StatusPage status_page;
 
@@ -73,7 +75,6 @@ Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_GFX* tft, COIN** coins, Portfoli
   menu->addElement(crypto_settings_submenu);
   menu->addElement(portfolio_settings_submenu);
   menu->addElement(storage_submenu);
-  menu->addElement(memory_info_button);
 
   // load menu from storage if present
   menu->load();
@@ -115,7 +116,7 @@ bool Crypto_Ticker_Menu::isCoinSelected(int index){
 }
 
 void Crypto_Ticker_Menu::displayMemoryInfo(){
-  uint8_t start = 85;
+  uint8_t start = tft->height() - 20;
   tft->fillRect(0, start, tft->width(), tft->height() - start, BLACK);
 
   // draw free heap data

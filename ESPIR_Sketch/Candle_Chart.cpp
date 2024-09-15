@@ -26,6 +26,8 @@ Candle_Chart::Candle_Chart(Adafruit_GFX *display,
     count = CANDLE_COUNT_128;
   } else if (display->width() == 160){
     count = CANDLE_COUNT_160;
+  } else if (display->width() == 240){
+    count = CANDLE_COUNT_240;
   } else if (display->width() == 320){
     count = CANDLE_COUNT_320;
   }
@@ -186,6 +188,15 @@ void Candle_Chart::display(int currency) {
       tft->drawLine(bar_x + 1, low_y, bar_x + 1, max(opening_y, closing_y),
                   color);
       tft->drawLine(bar_x, low_y, bar_x + 2, low_y, color);
+    } else if (tft->width() == 240){
+      tft->drawLine(bar_x, high_y, bar_x + 4, high_y, color);
+      tft->drawLine(bar_x + 2, high_y, bar_x + 2, min(opening_y, closing_y),
+                    color);
+      tft->fillRect(bar_x, min(opening_y, closing_y), CANDLE_WIDTH_320,
+                  max(opening_y, closing_y) - min(opening_y, closing_y), color);
+      tft->drawLine(bar_x + 2, low_y, bar_x + 2, max(opening_y, closing_y),
+                  color);
+      tft->drawLine(bar_x, low_y, bar_x + 4, low_y, color);
     } else if (tft->width() == 320){
       tft->drawLine(bar_x, high_y, bar_x + 4, high_y, color);
       tft->drawLine(bar_x + 2, high_y, bar_x + 2, min(opening_y, closing_y),

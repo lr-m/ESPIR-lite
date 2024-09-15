@@ -30,16 +30,16 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
 
   // Define bottom keys
   int tab_width = 36;
-  bottom_keys[0] = Key(tft, EDGE_BORDER, tft->height() - 15,
+  bottom_keys[0] = Key(tft, EDGE_BORDER, tft->height() - 12,
                        tab_width, KEY_HEIGHT, " <-- ", 1);
   bottom_keys[1] = Key(tft, tft->width() / 2 - tab_width / 2,
-                       tft->height() - 15, tab_width, KEY_HEIGHT, "Space", 1);
+                       tft->height() - 12, tab_width, KEY_HEIGHT, "Space", 1);
   bottom_keys[2] = Key(tft, tft->width() - EDGE_BORDER - tab_width,
-                       tft->height() - 15, tab_width, KEY_HEIGHT, "Enter", 1);
+                       tft->height() - 12, tab_width, KEY_HEIGHT, "Enter", 1);
 
   int current_letter = 0;
 
-  int edge_offset = (tft->width() - tft->height()) / 2;
+  int edge_offset = (tft->width() - 10 * (NORMAL_KEY_WIDTH + 1) - NORMAL_KEY_WIDTH/2) / 2;
 
   // Define the letters
   char* key_chars[26] = { "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s",
@@ -48,14 +48,14 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
   for (int i = 0; i < 10; i++) {
     letters[current_letter] = Key(
       tft, edge_offset + EDGE_BORDER + i * (NORMAL_KEY_WIDTH + 1),
-      tft->height() - 4 * (KEY_HEIGHT + 4), NORMAL_KEY_WIDTH,
+      tft->height() - 4 * (KEY_HEIGHT + VERTICAL_KEY_SEP), NORMAL_KEY_WIDTH,
       KEY_HEIGHT, key_chars[current_letter], 0);
     current_letter++;
   }
 
   for (int i = 0; i < 9; i++) {
     letters[current_letter] = Key(tft, edge_offset + EDGE_BORDER + (0.66 * NORMAL_KEY_WIDTH) + i * (NORMAL_KEY_WIDTH + 1),
-                                  tft->height() - 3 * (KEY_HEIGHT + 4), NORMAL_KEY_WIDTH,
+                                  tft->height() - 3 * (KEY_HEIGHT + VERTICAL_KEY_SEP), NORMAL_KEY_WIDTH,
                                   KEY_HEIGHT, key_chars[current_letter], 0);
     current_letter++;
   }
@@ -63,7 +63,7 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
   for (int i = 0; i < 7; i++) {
     letters[current_letter] = Key(tft,
                                   edge_offset + EDGE_BORDER + (1.8 * NORMAL_KEY_WIDTH) + i * (NORMAL_KEY_WIDTH + 1),
-                                  tft->height() - 2 * (KEY_HEIGHT + 4), NORMAL_KEY_WIDTH,
+                                  tft->height() - 2 * (KEY_HEIGHT + VERTICAL_KEY_SEP), NORMAL_KEY_WIDTH,
                                   KEY_HEIGHT, key_chars[current_letter], 0);
     current_letter++;
   }
@@ -73,7 +73,7 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
 
   for (int i = 0; i < 10; i++) {
     numbers[i] = Key(tft, edge_offset + EDGE_BORDER + i * (NORMAL_KEY_WIDTH + 1),
-                     tft->height() - 4 * (KEY_HEIGHT + 4), NORMAL_KEY_WIDTH,
+                     tft->height() - 4 * (KEY_HEIGHT + VERTICAL_KEY_SEP), NORMAL_KEY_WIDTH,
                      KEY_HEIGHT, key_nums[i], 0);
   }
 
@@ -85,14 +85,14 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
   for (int i = 0; i < 11; i++) {
     specials[current_letter] = Key(
       tft, edge_offset + EDGE_BORDER + i * (SPECIAL_KEY_WIDTH + 1),
-      tft->height() - 4 * (KEY_HEIGHT + 4), SPECIAL_KEY_WIDTH,
+      tft->height() - 4 * (KEY_HEIGHT + VERTICAL_KEY_SEP), SPECIAL_KEY_WIDTH,
       KEY_HEIGHT, key_specials[current_letter], 0);
     current_letter++;
   }
 
   for (int i = 0; i < 11; i++) {
     specials[current_letter] = Key(tft, edge_offset + EDGE_BORDER + i * (SPECIAL_KEY_WIDTH + 1),
-                                   tft->height() - 3 * (KEY_HEIGHT + 4), SPECIAL_KEY_WIDTH,
+                                   tft->height() - 3 * (KEY_HEIGHT + VERTICAL_KEY_SEP), SPECIAL_KEY_WIDTH,
                                    KEY_HEIGHT, key_specials[current_letter], 0);
     current_letter++;
   }
@@ -100,7 +100,7 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
   for (int i = 0; i < 10; i++) {
     specials[current_letter] = Key(tft,
                                    edge_offset + EDGE_BORDER + SPECIAL_KEY_WIDTH / 2 + i * (SPECIAL_KEY_WIDTH + 1),
-                                   tft->height() - 2 * (KEY_HEIGHT + 4), SPECIAL_KEY_WIDTH,
+                                   tft->height() - 2 * (KEY_HEIGHT + VERTICAL_KEY_SEP), SPECIAL_KEY_WIDTH,
                                    KEY_HEIGHT, key_specials[current_letter], 0);
     current_letter++;
   }
@@ -208,8 +208,8 @@ void Keyboard::exitTabs() {
 
 // Display the keyboard on the screen
 void Keyboard::display() {
-  tft->fillRect(0, tft->height() - 4 * (KEY_HEIGHT + 4) - 4, tft->width(),
-                4 * (KEY_HEIGHT + 4) + 4, SCHEME_BG);
+  tft->fillRect(0, tft->height() - 4 * (KEY_HEIGHT + VERTICAL_KEY_SEP) - 4, tft->width(),
+                4 * (KEY_HEIGHT + VERTICAL_KEY_SEP) + 4, SCHEME_BG);
 
   if (mode == Mode::LOWER || mode == Mode::UPPER) {
     for (int i = 0; i < 26; i++)
@@ -283,7 +283,7 @@ void Keyboard::displayPrompt(char* prompt) {
 
 // Displays the current string that has been entered by the user
 void Keyboard::displayCurrentString() {
-  tft->fillRect(0, 15, tft->width(), 40, SCHEME_BG);
+  tft->fillRect(0, 15, tft->width(), tft->height() - (4 * (KEY_HEIGHT + VERTICAL_KEY_SEP)) - 15, SCHEME_BG);
   tft->setTextColor(SCHEME_TEXT_LIGHT);
   tft->setCursor(0, 15);
   tft->print(current_string);
@@ -472,7 +472,7 @@ void Key::display(Mode mode) {
 
 // Display the key as selected
 void Key::displaySelected(Mode mode) {
-  tft->fillRoundRect(x, y, w, h, 2, ST77XX_WHITE);
+  tft->fillRoundRect(x, y, w, h, 2, SCHEME_SECONDARY);
   tft->setCursor(x + 3, y + 2);
   tft->setTextColor(SCHEME_TEXT_DARK);
   if (mode == Mode::UPPER && bottom_key == 0) {

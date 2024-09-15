@@ -133,6 +133,14 @@ void Coin_Select_Page::displayOnIndex(int index, bool selected) {
     label_height = LABEL_HEIGHT_160;
     button_rounding = BUTTON_ROUNDING_160;
     getScreen()->setTextSize(1);
+  } else if (getScreen()->width() == 240){
+    option_sep = OPTION_SEP_320;
+    option_height = OPTION_HEIGHT_320;
+    background_height = BACKGROUND_HEIGHT_320;
+    background_x_padding = BACKGROUND_X_PADDING_320;
+    label_height = LABEL_HEIGHT_320;
+    button_rounding = BUTTON_ROUNDING_320;
+    getScreen()->setTextSize(2);
   } else if (getScreen()->width() == 320){
     option_sep = OPTION_SEP_320;
     option_height = OPTION_HEIGHT_320;
@@ -194,6 +202,14 @@ void Coin_Select_Page::pageDisplay() {
     label_height = LABEL_HEIGHT_160;
     button_rounding = BUTTON_ROUNDING_160;
     getScreen()->setTextSize(1);
+  } else if (getScreen()->width() == 240){
+    option_sep = OPTION_SEP_320;
+    option_height = OPTION_HEIGHT_320;
+    background_height = BACKGROUND_HEIGHT_320;
+    background_x_padding = BACKGROUND_X_PADDING_320;
+    label_height = LABEL_HEIGHT_320;
+    button_rounding = BUTTON_ROUNDING_320;
+    getScreen()->setTextSize(2);
   } else if (getScreen()->width() == 320){
     option_sep = OPTION_SEP_320;
     option_height = OPTION_HEIGHT_320;
