@@ -1,6 +1,6 @@
 #include "Constants.h"
 #include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
+#include <Adafruit_GFX.h>
 
 #ifndef Element_h
 #define Element_h
@@ -42,8 +42,8 @@ public:
     int getDisplayOffset() { return display_offset; }
     void setDisplayOffset(int new_display_offset) { display_offset = new_display_offset; }
 
-    void setScreen(Adafruit_ST7735 *new_screen) { screen = new_screen; }
-    Adafruit_ST7735 *getScreen() const { return screen; }
+    void setScreen(Adafruit_GFX *new_screen) { screen = new_screen; }
+    Adafruit_GFX *getScreen() const { return screen; }
 
 protected:
     Element(ElementType elementType) : type(elementType) {}
@@ -53,7 +53,7 @@ private:
     int top;
     int display_offset = 0;
     int element_width = 0;
-    Adafruit_ST7735 *screen;
+    Adafruit_GFX *screen;
 };
 
 #endif

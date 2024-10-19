@@ -1,6 +1,6 @@
 #include "Submenu.h"
 
-Submenu::Submenu(const char *label, Adafruit_ST7735 *screen) : label(label), entered(false), selectedElementIndex(0), Element(SUBMENU), drawn(false) { setScreen(screen); }
+Submenu::Submenu(const char *label, Adafruit_GFX *screen) : label(label), entered(false), selectedElementIndex(0), Element(SUBMENU), drawn(false) { setScreen(screen); }
 
 // Displays the submenu option as if it is not selected/hovered over
 void Submenu::display()

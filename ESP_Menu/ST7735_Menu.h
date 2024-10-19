@@ -20,7 +20,7 @@
 class Menu
 {
 public:
-    Menu(Adafruit_ST7735 *display, uint16_t storage_size);
+    Menu(Adafruit_GFX *display, uint16_t storage_size);
     void addElement(Element *element);
 
     void display();
@@ -62,7 +62,7 @@ private:
     std::vector<Element *> elements;
     size_t selectedElementIndex;
     bool entered;
-    Adafruit_ST7735 *screen;
+    Adafruit_GFX *screen;
     int base_display_height = 0;
     int menu_height = 0;
     bool scrollable = false;
