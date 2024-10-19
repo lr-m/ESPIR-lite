@@ -31,7 +31,7 @@ int strcmp(const char *str1, const char *str2)
 	return (*str1 - *str2);
 }
 
-Menu::Menu(Adafruit_GFX *screen, uint16_t storage_size) : selectedElementIndex(0), entered(false), screen(screen), storage_size(storage_size)
+Menu::Menu(Adafruit_ST7735 *screen, uint16_t storage_size) : selectedElementIndex(0), entered(false), screen(screen), storage_size(storage_size)
 {
 	storage = new Storage();
 }

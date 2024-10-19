@@ -44,7 +44,7 @@ extern unsigned char epd_bitmap_logo_red[];
 extern unsigned char epd_bitmap_logo_green[];
 
 // init display here (modify to match your display)
-TFT tft = TFT(ST7789_SPI_240_240, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
+TFT tft = TFT(ST7735_SPI_160_80, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
 
 // IR remote
 decode_results results;

@@ -26,7 +26,7 @@
 class Submenu : public Element
 {
 public:
-    Submenu(const char *label, Adafruit_GFX *screen);
+    Submenu(const char *label, Adafruit_ST7735 *screen);
     void addElement(Element *element);
 
     bool isDrawn() const { return drawn; }

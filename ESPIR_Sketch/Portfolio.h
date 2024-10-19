@@ -15,7 +15,6 @@
 #include "TFT_abstraction_layer.h"
 
 #define COIN_COUNT 20
-#define COIN_PAGE_LIMIT 10
 
 #define DEG2RAD 0.0174532925
 #define MODE_COUNT 3

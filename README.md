@@ -18,22 +18,21 @@ ESPIR Lite is a rewritten version of this earlier ESPIR repo, with various impro
 
 | New | Gone |
 | - | - |
-| Support for 128x128 ST7735 display | Removed 4 coins with small graphs representation |
-| Support for 320x240 ST7789 displays | Removed ability to replace coins with new ones (short on EEPROM) |
-| Selection of up to 20 coins |  |
+| Support for more ST7735/ST7789 displays | Removed 4 coins with small graphs representation |
+| Selection of up to 20 coins | Removed ability to replace coins with new ones (short on EEPROM) |
 | Up to 20 coins allowed in portfolio at any time |  |
 | Built on my new Menu Arduino library for easier configuration |  |
 | Updated to current top 20 coins (no wrapped coins) |  |
 | Uses hardware SPI for increased display refresh rate |  |
 | Improved WiFi setup functionality (auto-detect access points, only needs password now) |  |
 | More free heap so far more reliable |  |
-| Updates prices every 60 seconds, as price updates on API are about this frequent |  |
+| Updates prices every 60 seconds, as price updates on API are about this frequent (and less chance of rate limits) |  |
 
 ## Libraries/Requirements
 
 - `Arduino Boards Manager` - ESP8266 Boards : Version **2.7.4**
 - `ArduinoJSON` : Version **7.1.0**
-- `Adafruit ST7735 & ST7789 Library` : Version **1.9.3** (updating to latest makes text drawing really slow?)
+- `Adafruit ST7735 & ST7789 Library` : Included in this repo, copy into your libraries folder (uninstall existing version if already installed)
 - `IRremote` : Version **4.4.0**
 - `Adafruit GFX Library` : Version **1.11.3** (updating to latest makes text drawing really slow?)
 
@@ -43,8 +42,8 @@ ESPIR Lite is a rewritten version of this earlier ESPIR repo, with various impro
 - TFT SPI display
 
 ### Supported displays:
-- ST7735 128x128 and 160x128
-- ST7789 320x240
+- ST7735 128x128, 160x80, 160x128
+- ST7789 240x240, 320x240
 
 ## Configurations
 
@@ -62,6 +61,18 @@ TFT tft = TFT(ST7735_SPI_128_128, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
 
 </div>
 
+### ST7735 160x80 0.96'
+
+```
+TFT tft = TFT(ST7735_SPI_160_80, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
+```
+
+<div align="center">
+
+<img src="images/ST7735_160_80_096.png" width="750">
+
+</div>
+
 ### ST7735 160x128 1.8'
 
 ```
@@ -71,6 +82,18 @@ TFT tft = TFT(ST7735_SPI_160_128, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
 <div align="center">
 
 <img src="images/ST7735_160_128_18.png" width="750">
+
+</div>
+
+### ST7789 240x240 1.54'
+
+```
+TFT tft = TFT(ST7789_SPI_240_240, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
+```
+
+<div align="center">
+
+<img src="images/ST7789_240_240_154.png" width="750">
 
 </div>
 
