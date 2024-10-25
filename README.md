@@ -12,21 +12,22 @@
 
 > ESPIR is an ESP8266 powered Crypto Ticker and Portfolio Tracker that uses a TFT screen to display statistics and a candle chart for various cryptocurrencies, as well as a configured portfolio. It utilises an IR remote for configuration and user input. This device is powered by the CoinGecko API.
 
-ESPIR Lite is a rewritten version of this earlier ESPIR repo, with various improvements and removal of unnecessary functionality to improve reliability.
+ESPIR Lite is a simplified rewrite of my previous ESPIR repo, prioritizing reliability and portability while adding support for more displays and ESP32 usage.
 
 ## What is different from Original ESPIR?
 
 | New | Gone |
 | - | - |
 | Support for more ST7735/ST7789 displays | Removed 4 coins with small graphs representation |
-| Selection of up to 20 coins | Removed ability to replace coins with new ones (short on EEPROM) |
+| Support for ESP32 as well as ESP8266 | Removed ability to replace coins with new ones (short on EEPROM) |
 | Up to 20 coins allowed in portfolio at any time |  |
-| Built on my new Menu Arduino library for easier configuration |  |
+| Selection of up to 20 coins in coin display |  |
 | Updated to current top 20 coins (no wrapped coins) |  |
 | Uses hardware SPI for increased display refresh rate |  |
 | Improved WiFi setup functionality (auto-detect access points, only needs password now) |  |
 | More free heap so far more reliable |  |
 | Updates prices every 60 seconds, as price updates on API are about this frequent (and less chance of rate limits) |  |
+| Built on my TFT Menu Arduino library |  |
 
 ## Libraries/Requirements
 
