@@ -14,6 +14,22 @@
 
 ESPIR Lite is a simplified rewrite of my previous ESPIR repo, prioritizing reliability and portability while adding support for more displays and ESP32 usage.
 
+## Example Coins
+
+<div align="center">
+
+<img src="images/coins.png" width="750">
+
+</div>
+
+## Example Portfolio
+
+<div align="center">
+
+<img src="images/portfolio.png" width="750">
+
+</div>
+
 ## What is different from Original ESPIR?
 
 | New | Gone |
