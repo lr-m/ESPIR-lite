@@ -16,6 +16,7 @@
 
 #define SCROLLBAR_WIDTH 5
 #define SCROLLBAR_PADDING 2
+#define MENU_MAGIC "MENU"
 
 class Menu
 {
@@ -54,8 +55,10 @@ public:
 
     bool isEntered() {return entered;}
 
+    void goToRoot();
+
     void save();
-    void load();
+    bool load();
     void reset();
 
 private:

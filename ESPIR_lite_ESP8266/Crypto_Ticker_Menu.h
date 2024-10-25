@@ -6,7 +6,7 @@
 #include "Portfolio_Editor_Page.h"
 #include "Coin.h"
 #include "Portfolio.h"
-#include "Network_Manager.h"
+#include "Network_Manager_ESP8266.h"
 
 #define STORAGE_SIZE 440
 
@@ -15,7 +15,7 @@
 
 class Crypto_Ticker_Menu {
 public:
-  Crypto_Ticker_Menu(Adafruit_GFX *tft, COIN **coins, Portfolio *portfolio, Network_Manager *network_manager);
+  Crypto_Ticker_Menu(Adafruit_GFX *tft, COIN **coins, Portfolio *portfolio, Network_Manager_ESP8266 *network_manager);
   void display() {
     menu->display();
   }
@@ -84,7 +84,7 @@ private:
   Portfolio *portfolio;
   bool selected_coins[20] = { 0 };
   Menu *menu;
-  Network_Manager *network_manager;
+  Network_Manager_ESP8266 *network_manager;
   Adafruit_GFX *tft;
 
   Submenu *customize_submenu;

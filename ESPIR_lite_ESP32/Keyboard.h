@@ -50,6 +50,7 @@ class Keyboard {
   // user-accessible "public" interface
 public:
   Keyboard(Adafruit_GFX*);
+  ~Keyboard();
   void press();
   void displayCurrentString();
   void display();

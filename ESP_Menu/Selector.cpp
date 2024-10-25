@@ -177,24 +177,16 @@ int Selector::getValue()
 }
 
 // get byte representation of component
-bool Selector::serialize(uint8_t *buffer, int *byte_index, uint16_t length_limit)
+bool Selector::serialize(uint8_t* buffer, int* byte_index, uint16_t length_limit)
 {
-    if (*byte_index < 0)
-    {
+    // First check bounds
+    if (*byte_index < 0 || *byte_index + sizeof(uint8_t) > length_limit) {
         return false;
     }
 
-    // check we arent writing outside buffer
-    if ((*byte_index) + 1 >= length_limit){
-        return false;
-    }
-
-    // store the selected index (uint8_t)
+    // Now safe to write
     buffer[*byte_index] = getSelectedIndex();
-
-    // Update byte index for the next operation
     (*byte_index)++;
-
     return true;
 }
 

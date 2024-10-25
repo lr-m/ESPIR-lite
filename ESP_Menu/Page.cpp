@@ -100,13 +100,13 @@ int Page::getHeight()
 // get byte representation of component
 bool Page::serialize(uint8_t *buffer, int *index, uint16_t length_limit)
 {
-    pageSerialize(buffer, index, length_limit);
+    return pageSerialize(buffer, index, length_limit);
 }
 
 // set values based on byte representation
 bool Page::deserialize(uint8_t *buffer, int *index, uint16_t length_limit)
 {
-    pageDeserialize(buffer, index, length_limit);
+    return pageDeserialize(buffer, index, length_limit);
 }
 
 // return to default value

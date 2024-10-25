@@ -1,3 +1,4 @@
+// FOR ESP8266
 #include <Adafruit_GFX.h>     // Core graphics library
 #include <IRremote.h>
 
@@ -6,16 +7,25 @@
 #include "Crypto_Ticker_Menu.h"
 #include "Coin.h"
 #include "Portfolio.h"
-#include "Network_Manager.h"
+#include "Network_Manager_ESP8266.h"
 #include "TFT_abstraction_layer.h"
 
-// Define PIN config
-#define TFT_RES D0
-#define TFT_DC D1
-#define TFT_SCL D5
-#define TFT_SDA D7
-#define TFT_CS D2
+// ######################################
+// ###### REPLACE PIN DEFINITIONS #######
+// ######################################
+
+#define TFT_DC   D1
+#define TFT_CS   D2
+#define TFT_RST  D0
 #define RECV_PIN D4
+
+// ######################################
+// ######## REPLACE DISPLAY INIT ########
+// ######################################
+
+TFT tft = TFT(ST7735_SPI_160_128, TFT_CS, TFT_DC, TFT_RST);
+
+// ######################################
 
 #define UPDATE_PERIOD 60
 
@@ -43,8 +53,8 @@ extern unsigned char DAI_logo[];
 extern unsigned char epd_bitmap_logo_red[];
 extern unsigned char epd_bitmap_logo_green[];
 
-// init display here (modify to match your display)
-TFT tft = TFT(ST7735_SPI_160_80, TFT_CS, TFT_DC, TFT_SDA, TFT_SCL, TFT_RES);
+// init network manager
+Network_Manager_ESP8266* network_manager;
 
 // IR remote
 decode_results results;
@@ -52,8 +62,6 @@ decode_results results;
 // Instantiate menu
 Crypto_Ticker_Menu* menu;
 Value_Drawer* value_drawer;
-Network_Manager* network_manager;
-Keyboard* keyboard;
 
 Portfolio* portfolio;
 COIN* coins[20];
@@ -84,6 +92,8 @@ State state;
 State last_state;
 
 void setup(void) {
+  Serial.begin(115200); 
+
   state = State::NETWORK;
   last_state = State::COIN;
 
@@ -138,9 +148,8 @@ void setup(void) {
   coins[19] =
     new COIN("DAI", "dai", DAI_logo, DAI_BACKGROUND, DAI_FOREGROUND, DAI_BACKGROUND, 0, value_drawer, tft.getDisplay());
 
-  keyboard = new Keyboard(tft.getDisplay());
   menu = new Crypto_Ticker_Menu(tft.getDisplay(), coins, portfolio, network_manager);
-  network_manager = new Network_Manager(tft.getDisplay(), coins, keyboard);
+  network_manager = new Network_Manager_ESP8266(tft.getDisplay(), coins);
 
   // load settings from menu into old values
   menu->getSliderValue("crypto_settings:candle_duration", &old_coin_candle_period);
@@ -152,19 +161,19 @@ void setup(void) {
     menu->getNextCoinIndex(&current_coin);  // get the index of the first selected coin to display on boot
   }
 
+  // draw the logo and coingecko string
   drawIntroAnimation();
 
-  // load wifi creds and connect to network (or enter setup)
-  network_manager->loadAndConnect();
-
-  if ((state == State::NETWORK) && network_manager->isConnected()) {
-    tft.getDisplay()->setTextColor(LIGHT_GREEN);
-    tft.getDisplay()->println("\n Requesting info...");
-
-    state == State::COIN;
-    refreshAllCoins();
-    addCoinPricesToCandles();
-    display();
+  // Attempt to load WiFi credentials and establish connection
+  bool connected = network_manager->loadAndConnect();
+  if (connected) {
+      // On first boot, skip network scan
+      if (!firstRequestFromBoot()) {
+          network_manager->scanForNetworks();
+      }
+  } else {
+      // If connection fails, scan for available networks
+      network_manager->scanForNetworks();
   }
 }
 
@@ -238,7 +247,7 @@ void updateTime() {
   // Update coins if time reached
   if ((current_second % UPDATE_PERIOD == 0) && !update_flip_flop) {
     update_flip_flop = true;
-    refreshCoins();
+    bool result = refreshCoins();
     // if updated and not on cycle, re-display, otherwise will display naturally
     if (state == State::COIN && (menu->getCoinCycleDuration() == 0)) {
       display();
@@ -460,14 +469,50 @@ void interactWithNetwork() {
       case IR_HASHTAG:
         network_manager->back();
         break;
+      case IR_ASTERISK:
+        network_manager->refreshNetworks();
+        break;
     }
 
     IrReceiver.resume();
   }
 
+  // connection didn't work first shot, so now we have finally connected we do the request!
   if ((state == State::NETWORK) && network_manager->isConnected()) {
+    bool result = firstRequestFromBoot(); // we dont care about the result here
+  }
+}
+
+bool firstRequestFromBoot(){
+  // load settings from menu into old values
+  menu->getSliderValue("crypto_settings:candle_duration", &old_coin_candle_period);
+  menu->getSliderValue("portfolio_settings:candle_duration", &old_portfolio_candle_period);
+  menu->getSelectorValue("customize:currency", &old_currency);
+  
+  // if first coin not selected, find the first selected coin
+  if (!menu->isCoinSelected(0)){
+    menu->getNextCoinIndex(&current_coin);  // get the index of the first selected coin to display on boot
+  }
+
+  // indicate first request is taking place (both groups so takes around 5 seconds)
+  tft.getDisplay()->setTextColor(LIGHT_GREEN);
+  tft.getDisplay()->print("\n Requesting info...");
+
+  // now that we know connection was a success, we can refresh the coin values using coingecko
+  if (refreshAllCoins()){
+    Serial.println("Refreshed all coins!");
+    // once prices have been received, we can add them to the candles
+    addCoinPricesToCandles();
+
+    // once data updated, set state to COIN
     state = State::COIN;
+
+    // finally display
     display();
+
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -549,42 +594,88 @@ void interact() {
   }
 }
 
-void refreshAllCoins() {
-  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, WHITE);
-  int indexes[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-  // refresh first 10 coins
-  network_manager->refreshData(indexes, 10, menu->getCurrency());
-  delay(5000);
-  // refresh second 10 coins
-  for (int i = 0; i < 10; i++) {
-    indexes[i] += 10;
-  }
-  network_manager->refreshData(indexes, 10, menu->getCurrency());
-  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
-}
-
-void clearCoinCandles(){
-  for (int i = 0; i < COIN_COUNT; i++){
-    coins[i]->candles->reset();
-  }
-}
-
-void refreshCoins() {
-  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, WHITE);
-  int indexes[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-  if (update_group_flip_flop) {
+bool refreshAllCoins() {
+    tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, WHITE);
+    int indexes[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    
     // refresh first 10 coins
-    network_manager->refreshData(indexes, 10, menu->getCurrency());
-  } else {
+    bool firstGroupSuccess = network_manager->refreshData(indexes, 10, menu->getCurrency());
+    if (!firstGroupSuccess) {
+      tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, RED);
+      delay(500);
+      tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
+      return false;
+    }
+    
+    delay(5000);
+    
     // refresh second 10 coins
     for (int i = 0; i < 10; i++) {
-      indexes[i] += 10;
+        indexes[i] += 10;
     }
-    network_manager->refreshData(indexes, 10, menu->getCurrency());
-  }
-  update_group_flip_flop = !update_group_flip_flop;
-  tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
-  portfolio->addPriceToCandles();
+    bool secondGroupSuccess = network_manager->refreshData(indexes, 10, menu->getCurrency());
+    if (!secondGroupSuccess) {
+      tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, RED);
+      delay(500);
+      tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
+      return false;
+    }
+    
+    tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, LIGHT_GREEN);
+    delay(500);
+    tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
+
+    return true;
+}
+
+void clearCoinCandles() {
+    for (int i = 0; i < COIN_COUNT; i++) {
+        if (coins[i] && coins[i]->candles) {
+            coins[i]->candles->reset();
+        }
+    }
+}
+
+bool refreshCoins() {
+    tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, WHITE);
+    int indexes[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    bool refreshSuccess = false;
+    
+    if (update_group_flip_flop) {
+        // refresh first 10 coins
+        refreshSuccess = network_manager->refreshData(indexes, 10, menu->getCurrency());
+        if (!refreshSuccess) {
+          tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, RED);
+          delay(500);
+          tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
+          return false;
+        }
+    } else {
+        // refresh second 10 coins
+        for (int i = 0; i < 10; i++) {
+            indexes[i] += 10;
+        }
+        refreshSuccess = network_manager->refreshData(indexes, 10, menu->getCurrency());
+        if (!refreshSuccess) {
+          tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, RED);
+          delay(500);
+          tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
+          return false;
+        }
+    }
+    
+    update_group_flip_flop = !update_group_flip_flop;
+    
+    // Visual feedback
+    tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, LIGHT_GREEN);
+    delay(500);
+    tft.getDisplay()->fillRect(tft.getDisplay()->width() - 2, 0, 2, 2, BLACK);
+    
+    if (portfolio) {
+        portfolio->addPriceToCandles();
+    }
+
+    return true;
 }
 
 void addCoinPricesToCandles() {
@@ -600,16 +691,19 @@ void addCoinPricesToCandles() {
 void display() {
   // display stuff based on current state
   if (state == State::NETWORK) {
+    // network manager display logic handled internally
   } else if (state == State::MENU) {
     menu->display();
   } else if (state == State::COIN) {
     int currency = 0;
-    menu->getSelectorValue("customize:currency", &currency);
     bool bitmap_enabled = false;
+
+    menu->getSelectorValue("customize:currency", &currency);
     menu->getCheckboxValue("crypto_settings:enable_bitmaps", &bitmap_enabled);
     if (!menu->isCoinSelected(current_coin)) {
       menu->getNextCoinIndex(&current_coin);  // get the next selected coin just in case the current one was deselected
     }
+
     coins[current_coin]->draw(currency, bitmap_enabled);
   } else if (state == State::PORTFOLIO) {
     int currency = 0;

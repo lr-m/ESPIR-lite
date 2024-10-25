@@ -1,6 +1,6 @@
 #include "TFT_abstraction_layer.h"
 
-TFT::TFT(TFT_Type displayType, int8_t cs, int8_t dc, int8_t sda, int8_t scl, int8_t res) {
+TFT::TFT(TFT_Type displayType, int8_t cs, int8_t dc, int8_t res) {
     type = displayType;
     switch (displayType) {
         case ST7735_SPI_128_128:

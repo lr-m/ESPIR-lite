@@ -43,31 +43,17 @@ void Checkbox::press()
 }
 
 // serialize checkbox
-bool Checkbox::serialize(uint8_t *buffer, int *byte_index, uint16_t length_limit)
+bool Checkbox::serialize(uint8_t* buffer, int* byte_index, uint16_t length_limit)
 {
-    if (*byte_index < 0)
-    {
+    // Check bounds before any writing
+    if (*byte_index < 0 || *byte_index + sizeof(uint8_t) > length_limit) {
         return false;
     }
 
-    // check we are writing inside buffer
-    if ((*byte_index) + 1 >= length_limit)
-    {
-        return false;
-    }
-
-    if (getValue())
-    {
-        buffer[*byte_index] = 1;
-    }
-    else
-    {
-        buffer[*byte_index] = 0;
-    }
-
-    // Update byte index for the next operation
+    // Now safe to write the value
+    buffer[*byte_index] = getValue() ? 1 : 0;
     (*byte_index)++;
-
+    
     return true;
 }
 

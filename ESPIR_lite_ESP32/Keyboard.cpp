@@ -108,6 +108,17 @@ Keyboard::Keyboard(Adafruit_GFX* display) {
   selected = letters;
 }
 
+Keyboard::~Keyboard() {
+    // Free dynamically allocated arrays
+    free(letters);
+    free(numbers);
+    free(specials);
+    free(bottom_keys);
+    
+    // Free current string buffer
+    free(current_string);
+}
+
 // Resets the keyboard between inputs
 void Keyboard::reset() {
   mode = Mode::LOWER;

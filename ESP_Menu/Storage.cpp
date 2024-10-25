@@ -14,8 +14,8 @@ void Storage::load(uint8_t* buffer, uint16_t length){
 
 // indicate cleared by removing magic bytes
 void Storage::reset(){
-    uint8_t magic_killer[2] = {0};
-    write(0, magic_killer, 2);
+    uint8_t magic_killer[4] = {0};
+    write(0, magic_killer, 4);
 }
 
 // write data of length at specified index

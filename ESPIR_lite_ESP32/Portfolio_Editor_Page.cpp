@@ -343,8 +343,6 @@ void Price_Selector::reset() {
 
 // Redraws the value selected by the user
 void Price_Selector::display(Adafruit_GFX *display) {
-  display->fillScreen(BLACK);
-
   if (display->width() == 128){
     display->setTextSize(1);
     display->setCursor(2, display->height() - 40);

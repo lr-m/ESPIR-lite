@@ -4,7 +4,7 @@ void placeholder() {
   // Serial.println("test");
 }
 
-Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_GFX* tft, COIN** coins, Portfolio* portfolio, Network_Manager* network_manager)
+Crypto_Ticker_Menu::Crypto_Ticker_Menu(Adafruit_GFX* tft, COIN** coins, Portfolio* portfolio, Network_Manager_ESP8266* network_manager)
   : coins(coins), portfolio(portfolio), network_manager(network_manager), tft(tft) {
   selected_coins[0] = true;
 

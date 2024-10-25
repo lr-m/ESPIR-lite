@@ -23,8 +23,8 @@ public:
     int getHeight() override;
     void toDefault() override{};
 
-    bool serialize(uint8_t *buffer, int *index, uint16_t length_limit) override{};
-    bool deserialize(uint8_t *buffer, int *index, uint16_t length_limit) override{};
+    bool serialize(uint8_t *buffer, int *index, uint16_t length_limit) override {return true;};
+    bool deserialize(uint8_t *buffer, int *index, uint16_t length_limit) override {return true;};
 
 private:
     const char *label;

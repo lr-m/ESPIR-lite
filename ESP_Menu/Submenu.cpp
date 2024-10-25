@@ -434,20 +434,21 @@ int Submenu::getHeight()
     return SUBMENU_HEIGHT + MENU_SEP;
 }
 
-// get byte representation of subcomponents
-bool Submenu::serialize(uint8_t *buffer, int *byte_index, uint16_t length_limit)
-{
+bool Submenu::serialize(uint8_t* buffer, int* byte_index, uint16_t length_limit)
+{   
     for (int i = 0; i < elements.size(); i++)
     {
-        // check that the element serialized correctly
+        if (!elements[i]) {
+            return false;
+        }
+        
         if (!elements[i]->serialize(buffer, byte_index, length_limit)){
             return false;
         }
-
-        // check that we haven't exceeded the buffer
+        
         if (*byte_index >= length_limit){
-			return false;
-		}
+            return false;
+        }
     }
     return true;
 }

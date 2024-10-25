@@ -449,39 +449,27 @@ void Menu::moveRight()
 	}
 }
 
-// Convert menu state to byte string that can be saved in EEPROM
-bool Menu::serialize(uint8_t *buffer, uint16_t length)
+bool Menu::serialize(uint8_t* buffer, uint16_t length)
 {
-	// init magic
-	buffer[0] = 0x12;
-	buffer[1] = 0x34;
-
-	int byte_index = 2;
-	for (int i = 0; i < elements.size(); i++)
-	{
-		// check that the element serialized correctly
-		if (!elements[i]->serialize(buffer, &byte_index, length)){
-			return false;
-		}
-
-		// check that we have space
-		if (byte_index >= storage_size){
-			return false;
-		}
-	}
-	return true;
+    int byte_index = 0;
+    
+    for (int i = 0; i < elements.size(); i++)
+    {
+        if (!elements[i]->serialize(buffer, &byte_index, length)){
+            return false;
+        }
+        
+        if (byte_index >= length){
+            return false;
+        }
+    }
+    return true;
 }
 
 // Load menu values from saved state
 bool Menu::deserialize(uint8_t *buffer, uint16_t length)
 {
-	if (!(buffer[0] == 0x12 && buffer[1] == 0x34))
-	{
-		// invalid magic, menu probably not serialised
-		return false;
-	}
-
-	int byte_index = 2;
+	int byte_index = 0;
 	for (int i = 0; i < elements.size(); i++)
 	{
 		// check element deserialized correctly
@@ -499,8 +487,6 @@ void Menu::toDefault()
 	{
 		elements[i]->toDefault();
 	}
-	entered = false;
-	display();
 }
 
 void printBuffer(uint8_t *buffer, size_t size)
@@ -516,22 +502,39 @@ void printBuffer(uint8_t *buffer, size_t size)
 // serialize menu and save into storage
 void Menu::save()
 {
-	uint8_t buffer[512];
-	serialize(buffer, storage_size);
+	uint8_t buffer[storage_size];
+	memcpy(buffer, MENU_MAGIC, 4);
+	serialize(buffer + 4, storage_size - 4);
 	storage->save(buffer, storage_size);
 }
 
 // load serialized menu from storage and deserialize into menu components
-void Menu::load()
+bool Menu::load()
 {
-	uint8_t buffer[512];
+	uint8_t buffer[storage_size];
 	storage->load(buffer, storage_size);
-	deserialize(buffer, storage_size);
+	
+	// check the magic
+	if (memcmp(buffer, MENU_MAGIC, 4) == 0) {	
+	  deserialize(buffer + 4, storage_size - 4);
+	  return true;
+	} else {
+	  return false;
+    }
 }
 
 // reset all components of the menu to default values and return to menu root
 void Menu::reset()
 {
-	storage->reset();
+	uint8_t buffer[storage_size];
+	memcpy(buffer, MENU_MAGIC, 4);
 	toDefault();
+	serialize(buffer + 4, storage_size - 4);
+	storage->save(buffer, storage_size);
+}
+
+void Menu::goToRoot()
+{
+	entered = false;
+	display();
 }

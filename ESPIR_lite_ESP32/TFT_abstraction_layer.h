@@ -20,7 +20,7 @@ enum TFT_Type {
 class TFT {
 public:
     // Constructor
-    TFT(TFT_Type displayType, int8_t cs, int8_t dc, int8_t sda, int8_t scl, int8_t re);
+    TFT(TFT_Type displayType, int8_t cs, int8_t dc, int8_t re);
 
     // Destructor
     ~TFT();
