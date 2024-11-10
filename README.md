@@ -67,6 +67,11 @@ ESPIR Lite is a simplified rewrite of my previous ESPIR repo, prioritizing relia
 - Compatible SPI TFT display (see below)
 - IR Reciever / Remote
 
+<div align="center">
+
+<img src="https://github.com/user-attachments/assets/1aa7fc6b-5bfc-4bd3-97fd-e204e091669e" width="250">
+
+</div>
 
 ### Supported Displays
 - *ST7735*: 128x128, 160x80, 160x128
